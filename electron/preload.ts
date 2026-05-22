@@ -1,0 +1,97 @@
+import { contextBridge, ipcRenderer } from 'electron'
+
+export interface ElectronAPI {
+  window: {
+    minimize: () => Promise<void>
+    maximize: () => Promise<boolean>
+    close: () => Promise<void>
+    isMaximized: () => Promise<boolean>
+    flash: () => void
+  }
+  terminal: {
+    create: (profileId: string, cols: number, rows: number) => Promise<{ sessionId: string }>
+    write: (sessionId: string, data: string) => void
+    resize: (sessionId: string, cols: number, rows: number) => void
+    destroy: (sessionId: string) => void
+    onData: (callback: (sessionId: string, data: string) => void) => () => void
+    onExit: (callback: (sessionId: string, code: number) => void) => () => void
+  }
+  profiles: {
+    get: () => Promise<any[]>
+    save: (profile: any) => Promise<any[]>
+    delete: (id: string) => Promise<any[]>
+  }
+  export: {
+    save: (content: string, defaultName: string) => Promise<boolean>
+  }
+  notification: {
+    show: (title: string, body: string) => void
+  }
+  snapshot: {
+    save: (snapshot: any) => Promise<void>
+    load: () => Promise<any | null>
+    clear: () => Promise<void>
+  }
+  layouts: {
+    save: (layouts: any[]) => Promise<void>
+    load: () => Promise<any[]>
+  }
+  app: {
+    onWillQuit: (callback: () => void) => () => void
+  }
+}
+
+const api: ElectronAPI = {
+  window: {
+    minimize: () => ipcRenderer.invoke('window:minimize'),
+    maximize: () => ipcRenderer.invoke('window:maximize'),
+    close: () => ipcRenderer.invoke('window:close'),
+    isMaximized: () => ipcRenderer.invoke('window:isMaximized'),
+    flash: () => ipcRenderer.send('window:flash'),
+  },
+  terminal: {
+    create: (profileId, cols, rows) => ipcRenderer.invoke('terminal:create', profileId, cols, rows),
+    write: (sessionId, data) => ipcRenderer.send('terminal:write', sessionId, data),
+    resize: (sessionId, cols, rows) => ipcRenderer.send('terminal:resize', sessionId, cols, rows),
+    destroy: (sessionId) => ipcRenderer.send('terminal:destroy', sessionId),
+    onData: (callback) => {
+      const handler = (_event: any, sessionId: string, data: string) => callback(sessionId, data)
+      ipcRenderer.on('terminal:data', handler)
+      return () => ipcRenderer.removeListener('terminal:data', handler)
+    },
+    onExit: (callback) => {
+      const handler = (_event: any, sessionId: string, code: number) => callback(sessionId, code)
+      ipcRenderer.on('terminal:exit', handler)
+      return () => ipcRenderer.removeListener('terminal:exit', handler)
+    },
+  },
+  profiles: {
+    get: () => ipcRenderer.invoke('profiles:get'),
+    save: (profile) => ipcRenderer.invoke('profiles:save', profile),
+    delete: (id) => ipcRenderer.invoke('profiles:delete', id),
+  },
+  export: {
+    save: (content, defaultName) => ipcRenderer.invoke('export:save', content, defaultName),
+  },
+  notification: {
+    show: (title, body) => ipcRenderer.send('notification:show', title, body),
+  },
+  snapshot: {
+    save: (snapshot) => ipcRenderer.invoke('snapshot:save', snapshot),
+    load: () => ipcRenderer.invoke('snapshot:load'),
+    clear: () => ipcRenderer.invoke('snapshot:clear'),
+  },
+  layouts: {
+    save: (layouts) => ipcRenderer.invoke('layouts:save', layouts),
+    load: () => ipcRenderer.invoke('layouts:load'),
+  },
+  app: {
+    onWillQuit: (callback) => {
+      const handler = () => callback()
+      ipcRenderer.on('app:will-quit', handler)
+      return () => ipcRenderer.removeListener('app:will-quit', handler)
+    },
+  },
+}
+
+contextBridge.exposeInMainWorld('electronAPI', api)

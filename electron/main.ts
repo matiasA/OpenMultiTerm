@@ -1,0 +1,155 @@
+import { app, BrowserWindow, ipcMain, dialog, Notification } from 'electron'
+import path from 'path'
+import fs from 'fs'
+import { ShellManager } from './shell-manager'
+
+const isDev = process.env.NODE_ENV !== 'production' && !app.isPackaged
+
+let mainWindow: BrowserWindow | null = null
+const shellManager = new ShellManager()
+
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 1400,
+    height: 900,
+    minWidth: 800,
+    minHeight: 500,
+    frame: false,
+    titleBarStyle: 'hidden',
+    backgroundColor: '#0a0a14',
+    show: false,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+    },
+  })
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow?.show()
+    mainWindow?.focus()
+  })
+
+  if (isDev) {
+    mainWindow.loadURL('http://localhost:5173')
+  } else {
+    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
+  }
+}
+
+function registerIpcHandlers() {
+  ipcMain.handle('window:minimize', () => mainWindow?.minimize())
+  ipcMain.handle('window:maximize', () => {
+    if (mainWindow?.isMaximized()) {
+      mainWindow.unmaximize()
+    } else {
+      mainWindow?.maximize()
+    }
+    return mainWindow?.isMaximized()
+  })
+  ipcMain.handle('window:close', () => {
+    mainWindow?.close()
+  })
+  ipcMain.handle('window:isMaximized', () => mainWindow?.isMaximized())
+
+  ipcMain.handle('terminal:create', (_event, profileId: string, cols: number, rows: number) => {
+    return shellManager.createSession(profileId, cols, rows)
+  })
+
+  ipcMain.on('terminal:write', (_event, sessionId: string, data: string) => {
+    shellManager.write(sessionId, data)
+  })
+
+  ipcMain.on('terminal:resize', (_event, sessionId: string, cols: number, rows: number) => {
+    shellManager.resize(sessionId, cols, rows)
+  })
+
+  ipcMain.on('terminal:destroy', (_event, sessionId: string) => {
+    shellManager.destroy(sessionId)
+  })
+
+  shellManager.onData((sessionId, data) => {
+    mainWindow?.webContents.send('terminal:data', sessionId, data)
+  })
+
+  shellManager.onExit((sessionId, code) => {
+    mainWindow?.webContents.send('terminal:exit', sessionId, code)
+  })
+
+  ipcMain.handle('profiles:get', () => shellManager.getProfiles())
+  ipcMain.handle('profiles:save', (_event, profile: any) => shellManager.saveProfile(profile))
+  ipcMain.handle('profiles:delete', (_event, id: string) => shellManager.deleteProfile(id))
+
+  ipcMain.handle('export:save', async (_event, content: string, defaultName: string) => {
+    const result = await dialog.showSaveDialog(mainWindow!, {
+      defaultPath: defaultName,
+      filters: [
+        { name: 'Log Files', extensions: ['log', 'txt'] },
+        { name: 'All Files', extensions: ['*'] },
+      ],
+    })
+    if (!result.canceled && result.filePath) {
+      fs.writeFileSync(result.filePath, content, 'utf-8')
+      return true
+    }
+    return false
+  })
+
+  ipcMain.on('notification:show', (_event, title: string, body: string) => {
+    if (Notification.isSupported()) {
+      new Notification({ title, body }).show()
+    }
+  })
+
+  ipcMain.handle('snapshot:save', (_event, snapshot: any) => {
+    shellManager.saveSnapshot(snapshot)
+  })
+
+  ipcMain.handle('snapshot:load', () => {
+    return shellManager.loadSnapshot()
+  })
+
+  ipcMain.handle('snapshot:clear', () => {
+    shellManager.clearSnapshot()
+  })
+
+  ipcMain.handle('layouts:save', (_event, layouts: any[]) => {
+    shellManager.saveLayouts(layouts)
+  })
+
+  ipcMain.handle('layouts:load', () => {
+    return shellManager.loadLayouts()
+  })
+
+  ipcMain.on('window:flash', () => {
+    mainWindow?.flashFrame(true)
+  })
+}
+
+app.whenReady().then(() => {
+  registerIpcHandlers()
+  createWindow()
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  })
+})
+
+app.on('window-all-closed', () => {
+  shellManager.destroyAll()
+  if (process.platform !== 'darwin') app.quit()
+})
+
+app.on('before-quit', () => {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('app:will-quit')
+    try {
+      const snapshot = shellManager.loadSnapshot()
+      if (!snapshot || !snapshot.terminals) {
+        shellManager.clearSnapshot()
+      }
+    } catch {}
+  }
+  shellManager.destroyAll()
+})

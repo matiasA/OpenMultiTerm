@@ -1,0 +1,69 @@
+{
+  "name": "nexus-terminal",
+  "version": "1.0.0",
+  "description": "Multi-terminal manager with stunning visuals",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "package:win": "npm run build && electron-builder --win",
+    "package:mac": "npm run build && electron-builder --mac",
+    "package:linux": "npm run build && electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.nexus.terminal",
+    "productName": "Nexus Terminal",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist",
+      "dist-electron"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "public/icon.png"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "public/icon.png"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "icon": "public/icon.png"
+    },
+    "npmRebuild": true
+  },
+  "dependencies": {
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/addon-search": "^0.15.0",
+    "@xterm/addon-web-links": "^0.11.0",
+    "@xterm/xterm": "^5.5.0",
+    "lucide-react": "^0.379.0",
+    "node-pty": "^1.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.3",
+    "vite-plugin-electron": "^0.28.7",
+    "vite-plugin-electron-renderer": "^0.14.5"
+  }
+}
