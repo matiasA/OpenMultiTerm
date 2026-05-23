@@ -33,7 +33,7 @@ interface AppState {
   addCommand: (sessionId: string, sessionTitle: string, command: string) => void
   clearCommandHistory: () => void
 
-  saveLayout: (name: string) => SavedLayout
+  saveLayout: (name: string, cwds?: Record<string, string | null>) => SavedLayout
   loadLayout: (layoutId: string) => void
   deleteLayout: (layoutId: string) => void
   setSavedLayouts: (layouts: SavedLayout[]) => void
@@ -155,7 +155,7 @@ export const useStore = create<AppState>((set, get) => ({
 
   clearCommandHistory: () => set({ commandHistory: [] }),
 
-  saveLayout: (name) => {
+  saveLayout: (name, cwds = {}) => {
     const state = get()
     const layout: SavedLayout = {
       id: `layout_${Date.now()}`,
@@ -165,6 +165,7 @@ export const useStore = create<AppState>((set, get) => ({
       terminals: state.terminals.map((t) => ({
         profileId: t.profileId,
         title: t.customTitle || t.title,
+        cwd: cwds[t.id] ?? null,
       })),
       createdAt: Date.now(),
     }

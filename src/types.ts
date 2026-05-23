@@ -40,6 +40,7 @@ export interface SavedLayout {
   terminals: Array<{
     profileId: string
     title: string
+    cwd?: string | null
   }>
   createdAt: number
 }

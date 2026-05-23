@@ -1,5 +1,6 @@
 import * as pty from 'node-pty'
 import { app } from 'electron'
+import { execSync } from 'child_process'
 import path from 'path'
 import fs from 'fs'
 
@@ -148,7 +149,28 @@ export class ShellManager {
     return this.profiles
   }
 
-  createSession(profileId: string, cols: number, rows: number): { sessionId: string } {
+  getSessionCwd(sessionId: string): string | null {
+    const session = this.sessions.get(sessionId)
+    if (!session) return null
+    const pid = session.ptyProcess.pid
+    try {
+      if (process.platform === 'win32') {
+        const out = execSync(`wmic process where "ProcessId=${pid}" get WorkingDirectory /value`, { timeout: 2000 }).toString()
+        const m = out.match(/WorkingDirectory=(.+)/)
+        return m ? m[1].trim() : null
+      } else if (process.platform === 'darwin') {
+        const out = execSync(`lsof -a -d cwd -p ${pid} -Fn 2>/dev/null`, { timeout: 2000 }).toString()
+        const line = out.split('\n').find(l => l.startsWith('n'))
+        return line ? line.slice(1).trim() : null
+      } else {
+        return fs.readlinkSync(`/proc/${pid}/cwd`)
+      }
+    } catch {
+      return null
+    }
+  }
+
+  createSession(profileId: string, cols: number, rows: number, cwdOverride?: string | null): { sessionId: string } {
     const profile = this.profiles.find((p) => p.id === profileId)
     if (!profile) throw new Error(`Profile not found: ${profileId}`)
 
@@ -162,7 +184,7 @@ export class ShellManager {
         name: 'xterm-256color',
         cols: cols || 120,
         rows: rows || 40,
-        cwd: profile.cwd || process.env.HOME || process.env.USERPROFILE || process.cwd(),
+        cwd: cwdOverride || profile.cwd || process.env.HOME || process.env.USERPROFILE || process.cwd(),
         env: { ...process.env, ...profile.env } as { [key: string]: string },
       })
 

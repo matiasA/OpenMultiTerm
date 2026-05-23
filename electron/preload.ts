@@ -13,7 +13,8 @@ export interface ElectronAPI {
     flash: () => void
   }
   terminal: {
-    create: (profileId: string, cols: number, rows: number) => Promise<{ sessionId: string }>
+    create: (profileId: string, cols: number, rows: number, cwd?: string | null) => Promise<{ sessionId: string }>
+    getCwd: (sessionId: string) => Promise<string | null>
     write: (sessionId: string, data: string) => void
     resize: (sessionId: string, cols: number, rows: number) => void
     destroy: (sessionId: string) => void
@@ -64,7 +65,8 @@ const api: ElectronAPI = {
     flash: () => ipcRenderer.send('window:flash'),
   },
   terminal: {
-    create: (profileId, cols, rows) => ipcRenderer.invoke('terminal:create', profileId, cols, rows),
+    create: (profileId, cols, rows, cwd) => ipcRenderer.invoke('terminal:create', profileId, cols, rows, cwd),
+    getCwd: (sessionId) => ipcRenderer.invoke('terminal:getCwd', sessionId),
     write: (sessionId, data) => ipcRenderer.send('terminal:write', sessionId, data),
     resize: (sessionId, cols, rows) => ipcRenderer.send('terminal:resize', sessionId, cols, rows),
     destroy: (sessionId) => ipcRenderer.send('terminal:destroy', sessionId),

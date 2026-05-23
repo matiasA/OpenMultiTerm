@@ -88,9 +88,15 @@ export default function Sidebar() {
     })
   }
 
-  const handleSaveLayout = () => {
+  const handleSaveLayout = async () => {
     if (!layoutName.trim()) return
-    saveLayout(layoutName.trim())
+    const cwds: Record<string, string | null> = {}
+    await Promise.all(
+      terminals.map(async (t) => {
+        cwds[t.id] = await window.electronAPI.terminal.getCwd(t.id).catch(() => null)
+      })
+    )
+    saveLayout(layoutName.trim(), cwds)
     window.electronAPI.layouts.save(useStore.getState().savedLayouts)
     setLayoutName('')
     setShowLayoutSave(false)
@@ -111,7 +117,7 @@ export default function Sidebar() {
       layout.terminals.forEach((lt) => {
         const profile = profiles.find((p) => p.id === lt.profileId)
         if (profile) {
-          window.electronAPI.terminal.create(profile.id, 120, 40).then(
+          window.electronAPI.terminal.create(profile.id, 120, 40, lt.cwd).then(
             ({ sessionId }) => {
               const session: TerminalSession = {
                 id: sessionId,
