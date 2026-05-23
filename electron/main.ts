@@ -187,6 +187,7 @@ app.whenReady().then(() => {
 
     autoUpdater.on('error', (err) => {
       console.error('Auto-updater error:', err.message)
+      mainWindow?.webContents.send('updater:error')
     })
   }
 })

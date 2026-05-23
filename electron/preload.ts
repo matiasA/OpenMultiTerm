@@ -46,6 +46,7 @@ export interface ElectronAPI {
   updater: {
     onAvailable: (callback: () => void) => () => void
     onDownloaded: (callback: () => void) => () => void
+    onError: (callback: () => void) => () => void
     install: () => Promise<void>
   }
 }
@@ -115,6 +116,11 @@ const api: ElectronAPI = {
       const handler = () => callback()
       ipcRenderer.on('updater:downloaded', handler)
       return () => ipcRenderer.removeListener('updater:downloaded', handler)
+    },
+    onError: (callback) => {
+      const handler = () => callback()
+      ipcRenderer.on('updater:error', handler)
+      return () => ipcRenderer.removeListener('updater:error', handler)
     },
     install: () => ipcRenderer.invoke('updater:install'),
   },

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Download, RefreshCw, X } from 'lucide-react'
 
-type UpdateState = 'idle' | 'available' | 'downloaded'
+type UpdateState = 'idle' | 'available' | 'downloaded' | 'error'
 
 export default function UpdateToast() {
   const [state, setState] = useState<UpdateState>('idle')
@@ -16,9 +16,13 @@ export default function UpdateToast() {
       setState('downloaded')
       setVisible(true)
     })
+    const unsubError = window.electronAPI.updater.onError(() => {
+      setVisible(false)
+    })
     return () => {
       unsubAvailable()
       unsubDownloaded()
+      unsubError()
     }
   }, [])
 
