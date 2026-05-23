@@ -36,6 +36,10 @@ function createWindow() {
     mainWindow?.focus()
   })
 
+  mainWindow.on('closed', () => {
+    mainWindow = null
+  })
+
   if (isDev) {
     mainWindow.loadURL('http://localhost:5173')
   } else {
@@ -58,8 +62,12 @@ function registerIpcHandlers() {
   })
   ipcMain.handle('window:isMaximized', () => mainWindow?.isMaximized())
 
-  ipcMain.handle('terminal:create', (_event, profileId: string, cols: number, rows: number) => {
-    return shellManager.createSession(profileId, cols, rows)
+  ipcMain.handle('terminal:create', (_event, profileId: string, cols: number, rows: number, cwdOverride?: string | null) => {
+    return shellManager.createSession(profileId, cols, rows, cwdOverride)
+  })
+
+  ipcMain.handle('terminal:getCwd', (_event, sessionId: string) => {
+    return shellManager.getSessionCwd(sessionId)
   })
 
   ipcMain.on('terminal:write', (_event, sessionId: string, data: string) => {
@@ -75,11 +83,15 @@ function registerIpcHandlers() {
   })
 
   shellManager.onData((sessionId, data) => {
-    mainWindow?.webContents.send('terminal:data', sessionId, data)
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('terminal:data', sessionId, data)
+    }
   })
 
   shellManager.onExit((sessionId, code) => {
-    mainWindow?.webContents.send('terminal:exit', sessionId, code)
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('terminal:exit', sessionId, code)
+    }
   })
 
   ipcMain.handle('profiles:get', () => shellManager.getProfiles())
