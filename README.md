@@ -10,7 +10,7 @@
 
   <p>
     <a href="https://github.com/matiasA/OpenMultiTerm/releases/latest">
-      <img src="https://img.shields.io/github/v/release/matiasA/OpenMultiTerm?style=flat-square&color=7c5cfc" alt="Latest Release" />
+      <img src="https://img.shields.io/github/v/release/matiasA/OpenMultiTerm?include_prereleases=true&style=flat-square&color=7c5cfc" alt="Latest Release" />
     </a>
     <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue?style=flat-square" alt="Platform" />
     <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License" />
