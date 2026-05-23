@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain, dialog, Notification } from 'electron'
+import { autoUpdater } from 'electron-updater'
 import path from 'path'
 import fs from 'fs'
 import { ShellManager } from './shell-manager'
@@ -138,6 +139,10 @@ function registerIpcHandlers() {
   ipcMain.on('window:flash', () => {
     mainWindow?.flashFrame(true)
   })
+
+  ipcMain.handle('updater:install', () => {
+    autoUpdater.quitAndInstall()
+  })
 }
 
 app.whenReady().then(() => {
@@ -150,6 +155,22 @@ app.whenReady().then(() => {
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
+
+  if (!isDev) {
+    autoUpdater.checkForUpdates()
+
+    autoUpdater.on('update-available', () => {
+      mainWindow?.webContents.send('updater:available')
+    })
+
+    autoUpdater.on('update-downloaded', () => {
+      mainWindow?.webContents.send('updater:downloaded')
+    })
+
+    autoUpdater.on('error', (err) => {
+      console.error('Auto-updater error:', err.message)
+    })
+  }
 })
 
 app.on('window-all-closed', () => {

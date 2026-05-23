@@ -1,6 +1,6 @@
 {
   "name": "openmultiterm",
-  "version": "1.0.0",
+  "version": "0.1.0-beta",
   "description": "Open-source multi-terminal manager",
   "author": "Matias A",
   "main": "dist-electron/main.js",
@@ -40,13 +40,19 @@
       ],
       "icon": "public/icon.png"
     },
-    "npmRebuild": true
+    "npmRebuild": true,
+    "publish": {
+      "provider": "github",
+      "owner": "matiasA",
+      "repo": "OpenMultiTerm"
+    }
   },
   "dependencies": {
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/addon-search": "^0.15.0",
     "@xterm/addon-web-links": "^0.11.0",
     "@xterm/xterm": "^5.5.0",
+    "electron-updater": "^6.8.3",
     "lucide-react": "^0.379.0",
     "node-pty": "^1.0.0",
     "react": "^18.3.1",

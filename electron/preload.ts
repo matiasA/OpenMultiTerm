@@ -39,6 +39,11 @@ export interface ElectronAPI {
   app: {
     onWillQuit: (callback: () => void) => () => void
   }
+  updater: {
+    onAvailable: (callback: () => void) => () => void
+    onDownloaded: (callback: () => void) => () => void
+    install: () => Promise<void>
+  }
 }
 
 const api: ElectronAPI = {
@@ -91,6 +96,19 @@ const api: ElectronAPI = {
       ipcRenderer.on('app:will-quit', handler)
       return () => ipcRenderer.removeListener('app:will-quit', handler)
     },
+  },
+  updater: {
+    onAvailable: (callback) => {
+      const handler = () => callback()
+      ipcRenderer.on('updater:available', handler)
+      return () => ipcRenderer.removeListener('updater:available', handler)
+    },
+    onDownloaded: (callback) => {
+      const handler = () => callback()
+      ipcRenderer.on('updater:downloaded', handler)
+      return () => ipcRenderer.removeListener('updater:downloaded', handler)
+    },
+    install: () => ipcRenderer.invoke('updater:install'),
   },
 }
 
