@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Minus, Square, X, Maximize2, Minimize2 } from 'lucide-react'
-import { useStore } from '../store'
-
 export default function TitleBar() {
   const [isMaximized, setIsMaximized] = useState(false)
-  const appTheme = useStore((s) => s.appTheme)
-  const logo = appTheme === 'light' ? '/logo-light.png' : '/logo-dark.png'
 
   useEffect(() => {
     window.electronAPI.window.isMaximized().then(setIsMaximized)
@@ -20,7 +16,7 @@ export default function TitleBar() {
     <div className="titlebar-drag h-9 flex items-center justify-between shrink-0 bg-gradient-to-r from-titlebar-start via-titlebar-mid to-titlebar-end border-b border-app-border/5">
       <div className="flex items-center gap-3 pl-4">
         <div className="flex items-center gap-2">
-          <img src={logo} alt="OpenMultiTerm" className="w-5 h-5 rounded-md object-contain" />
+          <img src="/logo.png" alt="OpenMultiTerm" className="w-7 h-7 rounded-md object-contain" />
           <span className="text-xs font-medium text-app-text/80 tracking-wide">OpenMultiTerm</span>
         </div>
       </div>
