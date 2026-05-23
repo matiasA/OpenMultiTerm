@@ -16,8 +16,8 @@ export default function TitleBar() {
   }
 
   return (
-    <div className="titlebar-drag h-9 flex items-center justify-between shrink-0 bg-gradient-to-r from-titlebar-start via-titlebar-mid to-titlebar-end border-b border-app-border/5">
-      <div className="flex items-center gap-1 pl-2">
+    <div className="titlebar-drag h-10 flex items-center justify-between shrink-0 bg-gradient-to-r from-titlebar-start via-titlebar-mid to-titlebar-end border-b border-app-border/5">
+      <div className="flex items-center gap-2 pl-3">
         <button
           onClick={toggleSidebar}
           className={`no-drag h-7 w-7 flex items-center justify-center rounded hover:bg-app-hover-overlay/5 transition-colors ${sidebarOpen ? 'text-app-text/60' : 'text-accent/80'}`}
@@ -25,8 +25,8 @@ export default function TitleBar() {
         >
           <PanelLeft size={14} />
         </button>
-        <div className="flex items-center gap-2 pl-2">
-          <img src="./logo.png" alt="OpenMultiTerm" className="w-7 h-7 rounded-md object-contain" />
+        <div className="flex items-center gap-2 pl-1">
+          <img src="./logo.png" alt="OpenMultiTerm" className="w-6 h-6 rounded object-contain" />
           <span className="text-xs font-medium text-app-text/80 tracking-wide">OpenMultiTerm</span>
         </div>
       </div>

@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react'
 import { useStore } from '../store'
-import { Terminal, Radio, Zap, RefreshCw, Download } from 'lucide-react'
+import { Terminal, Radio, Zap } from 'lucide-react'
 
 export default function StatusBar() {
   const { terminals, activeTerminalId, profiles, broadcastMode, terminalTheme } = useStore()
@@ -10,21 +9,6 @@ export default function StatusBar() {
     : null
 
   const runningCount = terminals.filter((t) => t.status === 'running').length
-
-  const [updateState, setUpdateState] = useState<'idle' | 'available' | 'downloaded'>('idle')
-
-  useEffect(() => {
-    const unsubAvailable = window.electronAPI.updater.onAvailable(() => {
-      setUpdateState('available')
-    })
-    const unsubDownloaded = window.electronAPI.updater.onDownloaded(() => {
-      setUpdateState('downloaded')
-    })
-    return () => {
-      unsubAvailable()
-      unsubDownloaded()
-    }
-  }, [])
 
   return (
     <div className="h-7 flex items-center gap-3 px-3 bg-app-bg-secondary border-t border-app-border/5 shrink-0">
@@ -59,23 +43,6 @@ export default function StatusBar() {
       )}
 
       <div className="flex-1" />
-
-      {updateState === 'available' && (
-        <div className="flex items-center gap-1.5 text-[10px] text-blue-400/80 animate-pulse">
-          <Download size={10} />
-          <span>Downloading update...</span>
-        </div>
-      )}
-
-      {updateState === 'downloaded' && (
-        <button
-          onClick={() => window.electronAPI.updater.install()}
-          className="flex items-center gap-1.5 text-[10px] text-accent hover:text-accent/80 transition-colors font-medium"
-        >
-          <RefreshCw size={10} />
-          <span>Update ready — Restart to install</span>
-        </button>
-      )}
 
       <div className="flex items-center gap-1.5 text-[10px] text-app-text/45">
         <Zap size={10} />

@@ -123,7 +123,7 @@ export default function Sidebar() {
   ]
 
   return (
-    <aside className="w-60 shrink-0 glass border-r border-app-border/5 flex flex-col animate-slide-in overflow-y-auto">
+    <aside className="w-60 shrink-0 glass border-r border-app-border/5 flex flex-col animate-slide-in overflow-y-auto font-mono">
 
       <div className="p-3 border-b border-app-border/5">
         <div className="flex items-center justify-between mb-3">
@@ -345,7 +345,14 @@ export default function Sidebar() {
                   className="w-4 h-4 rounded border border-app-border/10 shrink-0"
                   style={{ background: theme.background }}
                 />
-                <span className="flex-1 text-left">{theme.name}</span>
+                <span className="flex-1 text-left leading-tight">
+                  {theme.name}
+                  {theme.fontFamily && (
+                    <span className="block text-[9px] text-app-text/35 font-normal">
+                      {theme.fontFamily.split(',')[0].replace(/"/g, '')}
+                    </span>
+                  )}
+                </span>
                 {terminalTheme.name === theme.name && <Zap size={10} className="text-accent" />}
               </button>
             ))}

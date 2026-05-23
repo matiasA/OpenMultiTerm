@@ -41,7 +41,7 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
       cursorBlink: true,
       cursorStyle: 'bar',
       fontSize: 13,
-      fontFamily: '"Cascadia Code", "JetBrains Mono", "Fira Code", "Consolas", monospace',
+      fontFamily: terminalTheme.fontFamily ?? '"Cascadia Code", "JetBrains Mono", "Fira Code", "Consolas", monospace',
       theme: terminalTheme,
       allowProposedApi: true,
       allowTransparency: true,
@@ -49,6 +49,7 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
       lineHeight: 1.4,
       scrollback: 5000,
       tabStopWidth: 4,
+      copyOnSelect: true,
     })
 
     const fitAddon = new FitAddon()
@@ -61,6 +62,27 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
 
     terminal.open(containerRef.current)
     fitAddon.fit()
+
+    terminal.attachCustomKeyEventHandler((e) => {
+      if (e.type !== 'keydown') return true
+      const mod = e.ctrlKey || e.metaKey
+
+      // Ctrl+C with active selection → copy, don't send SIGINT
+      if (mod && !e.shiftKey && e.key === 'c' && terminal.hasSelection()) {
+        navigator.clipboard.writeText(terminal.getSelection())
+        return false
+      }
+
+      // Ctrl+V → paste from clipboard
+      if (mod && !e.shiftKey && e.key === 'v') {
+        navigator.clipboard.readText().then((text) => {
+          if (text) window.electronAPI.terminal.write(session.id, text)
+        })
+        return false
+      }
+
+      return true
+    })
 
     terminalRef.current = terminal
     fitAddonRef.current = fitAddon
@@ -125,10 +147,13 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
     const term = terminalRef.current
     if (term) {
       term.options.theme = terminalTheme
+      term.options.fontFamily = terminalTheme.fontFamily ?? '"Cascadia Code", "JetBrains Mono", "Fira Code", "Consolas", monospace'
       const rows = term.rows
       if (rows > 0) {
         term.refresh(0, rows - 1)
       }
+      // refit so cell dimensions update after the font change
+      requestAnimationFrame(() => fitAddonRef.current?.fit())
     }
   }, [terminalTheme])
 

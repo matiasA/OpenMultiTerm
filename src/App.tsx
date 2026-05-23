@@ -5,6 +5,7 @@ import Sidebar from './components/Sidebar'
 import TerminalGrid from './components/TerminalGrid'
 import StatusBar from './components/StatusBar'
 import CommandPalette from './components/CommandPalette'
+import UpdateToast from './components/UpdateToast'
 import type { Profile, SessionSnapshot } from './types'
 import { OMT_DARK, OMT_LIGHT } from './themes'
 
@@ -177,6 +178,7 @@ export default function App() {
       </div>
       <StatusBar />
       <CommandPalette />
+      <UpdateToast />
     </div>
   )
 }

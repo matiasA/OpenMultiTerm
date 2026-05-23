@@ -57,6 +57,7 @@ export interface SessionSnapshot {
 export interface XtermTheme {
   name: string
   variant: 'dark' | 'light'
+  fontFamily?: string
   background: string
   foreground: string
   cursor: string
