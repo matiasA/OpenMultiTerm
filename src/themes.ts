@@ -1,7 +1,7 @@
 import type { XtermTheme } from './types'
 
-export const NEXUS_DARK: XtermTheme = {
-  name: 'Nexus Dark',
+export const OMT_DARK: XtermTheme = {
+  name: 'OpenMultiTerm Dark',
   variant: 'dark',
   background: '#0a0a14',
   foreground: '#e0e0e8',
@@ -26,8 +26,8 @@ export const NEXUS_DARK: XtermTheme = {
   brightWhite: '#ffffff',
 }
 
-export const NEXUS_LIGHT: XtermTheme = {
-  name: 'Nexus Light',
+export const OMT_LIGHT: XtermTheme = {
+  name: 'OpenMultiTerm Light',
   variant: 'light',
   background: '#f5f5fa',
   foreground: '#1a1a2e',
@@ -157,8 +157,8 @@ export const NORD: XtermTheme = {
 }
 
 export const ALL_THEMES: XtermTheme[] = [
-  NEXUS_DARK,
-  NEXUS_LIGHT,
+  OMT_DARK,
+  OMT_LIGHT,
   ONE_DARK,
   DRACULA,
   TOKYO_NIGHT,

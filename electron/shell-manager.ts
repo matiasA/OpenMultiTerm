@@ -97,7 +97,7 @@ export class ShellManager {
   private layoutsPath: string
 
   constructor() {
-    const userDataPath = app?.getPath('userData') || path.join(process.cwd(), '.nexus-data')
+    const userDataPath = app?.getPath('userData') || path.join(process.cwd(), '.openmultiterm-data')
     if (!fs.existsSync(userDataPath)) {
       fs.mkdirSync(userDataPath, { recursive: true })
     }

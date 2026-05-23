@@ -166,7 +166,7 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
       if (line) lines.push(line.translateToString())
     }
     const content = lines.join('\n')
-    const defaultName = `nexus-${displayTitle.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().slice(0, 10)}.log`
+    const defaultName = `openmultiterm-${displayTitle.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().slice(0, 10)}.log`
     await window.electronAPI.export.save(content, defaultName)
   }
 

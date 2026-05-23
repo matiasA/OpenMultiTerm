@@ -1,7 +1,7 @@
 {
-  "name": "nexus-terminal",
+  "name": "openmultiterm",
   "version": "1.0.0",
-  "description": "Multi-terminal manager with stunning visuals",
+  "description": "Open-source multi-terminal manager",
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
@@ -12,8 +12,8 @@
     "package:linux": "npm run build && electron-builder --linux"
   },
   "build": {
-    "appId": "com.nexus.terminal",
-    "productName": "Nexus Terminal",
+    "appId": "com.openmultiterm.app",
+    "productName": "OpenMultiTerm",
     "directories": {
       "output": "release"
     },

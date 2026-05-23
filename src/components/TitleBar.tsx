@@ -18,9 +18,9 @@ export default function TitleBar() {
       <div className="flex items-center gap-3 pl-4">
         <div className="flex items-center gap-2">
           <div className="w-5 h-5 rounded-md bg-gradient-to-br from-accent to-cyan-400 flex items-center justify-center shadow-[0_0_12px_rgba(124,92,252,0.4)]">
-            <span className="text-[10px] font-bold text-white">N</span>
+            <span className="text-[10px] font-bold text-white">O</span>
           </div>
-          <span className="text-xs font-medium text-app-text/80 tracking-wide">Nexus Terminal</span>
+          <span className="text-xs font-medium text-app-text/80 tracking-wide">OpenMultiTerm</span>
         </div>
       </div>
 

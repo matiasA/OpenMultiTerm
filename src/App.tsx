@@ -6,7 +6,7 @@ import TerminalGrid from './components/TerminalGrid'
 import StatusBar from './components/StatusBar'
 import CommandPalette from './components/CommandPalette'
 import type { Profile, SessionSnapshot } from './types'
-import { NEXUS_DARK, NEXUS_LIGHT } from './themes'
+import { OMT_DARK, OMT_LIGHT } from './themes'
 
 export default function App() {
   const {
@@ -157,9 +157,9 @@ export default function App() {
 
   useEffect(() => {
     if (appTheme === 'light') {
-      setTerminalTheme(NEXUS_LIGHT)
+      setTerminalTheme(OMT_LIGHT)
     } else {
-      setTerminalTheme(NEXUS_DARK)
+      setTerminalTheme(OMT_DARK)
     }
   }, [appTheme])
 
