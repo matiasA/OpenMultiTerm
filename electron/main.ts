@@ -1,5 +1,6 @@
-import { app, BrowserWindow, ipcMain, dialog, Notification } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, Notification, shell } from 'electron'
 import { autoUpdater } from 'electron-updater'
+import { execSync } from 'child_process'
 import path from 'path'
 import fs from 'fs'
 import { ShellManager } from './shell-manager'
@@ -142,6 +143,23 @@ function registerIpcHandlers() {
 
   ipcMain.handle('updater:install', () => {
     autoUpdater.quitAndInstall()
+  })
+
+  ipcMain.handle('agents:detect', () => {
+    const commands = ['claude', 'opencode', 'gh', 'gemini', 'hermes', 'clawbot', 'codex']
+    const installed: string[] = []
+    for (const cmd of commands) {
+      try {
+        const check = process.platform === 'win32' ? `where ${cmd}` : `which ${cmd}`
+        execSync(check, { stdio: 'pipe', timeout: 2000 })
+        installed.push(cmd)
+      } catch { /* not found */ }
+    }
+    return installed
+  })
+
+  ipcMain.on('agents:openUrl', (_event, url: string) => {
+    shell.openExternal(url)
   })
 }
 

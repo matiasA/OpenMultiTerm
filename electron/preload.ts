@@ -1,6 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
 export interface ElectronAPI {
+  agents: {
+    detect: () => Promise<string[]>
+    openUrl: (url: string) => void
+  }
   window: {
     minimize: () => Promise<void>
     maximize: () => Promise<boolean>
@@ -47,6 +51,10 @@ export interface ElectronAPI {
 }
 
 const api: ElectronAPI = {
+  agents: {
+    detect: () => ipcRenderer.invoke('agents:detect'),
+    openUrl: (url) => ipcRenderer.send('agents:openUrl', url),
+  },
   window: {
     minimize: () => ipcRenderer.invoke('window:minimize'),
     maximize: () => ipcRenderer.invoke('window:maximize'),

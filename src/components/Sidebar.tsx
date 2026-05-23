@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { useStore } from '../store'
 import type { Profile, TerminalSession, SavedLayout } from '../types'
 import { DARK_THEMES, LIGHT_THEMES } from '../themes'
+import { AGENTS, type AgentDef } from '../agents'
+import AgentInstallModal from './AgentInstallModal'
 import {
   Plus, Terminal, Sparkles, Monitor, RectangleHorizontal, GitBranch,
   Trash2, Grid3X3, Columns2, Rows2, LayoutGrid,
-  Radio, Save, ChevronDown, Palette, Bookmark, Zap,
+  Radio, Save, ChevronDown, Palette, Bookmark, Zap, Bot,
 } from 'lucide-react'
 
 const ICON_MAP: Record<string, React.ComponentType<any>> = {
@@ -39,11 +41,15 @@ export default function Sidebar() {
   const [layoutName, setLayoutName] = useState('')
   const [showLayoutSave, setShowLayoutSave] = useState(false)
   const [showLayouts, setShowLayouts] = useState(false)
+  const [showAgents, setShowAgents] = useState(false)
+  const [installedAgents, setInstalledAgents] = useState<string[]>([])
+  const [installModal, setInstallModal] = useState<AgentDef | null>(null)
 
   useEffect(() => {
     window.electronAPI.layouts.load().then((layouts: SavedLayout[]) => {
       if (layouts.length) setSavedLayouts(layouts)
     })
+    window.electronAPI.agents.detect().then(setInstalledAgents).catch(() => {})
   }, [])
 
   const handleNewTerminal = async (profile: Profile) => {
@@ -65,6 +71,21 @@ export default function Sidebar() {
   const handleCloseTerminal = (id: string) => {
     window.electronAPI.terminal.destroy(id)
     removeTerminal(id)
+  }
+
+  const handleInstallAgent = async (command: string) => {
+    const profile = profiles.find(p =>
+      navigator.userAgent.includes('Win')
+        ? p.command.toLowerCase().includes('powershell') || p.command.toLowerCase().includes('cmd')
+        : p.command.includes('bash') || p.command.includes('zsh') || p.command.includes('sh')
+    ) ?? profiles[0]
+    if (!profile) return
+    const { sessionId } = await window.electronAPI.terminal.create(profile.id, 120, 40)
+    addTerminal({ id: sessionId, profileId: profile.id, title: 'Installing...', status: 'running', lastActivityTime: Date.now() })
+    const lines = command.split('\n')
+    lines.forEach((line, i) => {
+      setTimeout(() => window.electronAPI.terminal.write(sessionId, line + '\r'), 600 + i * 400)
+    })
   }
 
   const handleSaveLayout = () => {
@@ -359,6 +380,53 @@ export default function Sidebar() {
           </div>
         )}
       </div>
+      <div className="p-3 border-b border-app-border/5">
+        <button
+          onClick={() => setShowAgents(!showAgents)}
+          className="flex items-center gap-1 w-full text-[10px] text-app-text/50 hover:text-app-text/75 transition-colors"
+        >
+          <Bot size={10} />
+          <span className="font-semibold uppercase tracking-widest flex-1 text-left">CLI Agents</span>
+          <span className="text-accent/70 font-mono mr-1">
+            {installedAgents.length}/{AGENTS.length}
+          </span>
+          <ChevronDown size={10} className={`transition-transform ${showAgents ? 'rotate-0' : '-rotate-90'}`} />
+        </button>
+
+        {showAgents && (
+          <div className="mt-2 grid grid-cols-3 gap-1 animate-slide-up">
+            {AGENTS.map((agent) => {
+              const installed = installedAgents.includes(agent.command)
+              return (
+                <button
+                  key={agent.id}
+                  onClick={() => !installed && setInstallModal(agent)}
+                  title={installed ? `${agent.name} — installed` : `${agent.name} — click to install`}
+                  className={`flex items-center gap-1 px-1.5 py-1 rounded text-[10px] truncate transition-all ${
+                    installed
+                      ? 'text-app-text/70 cursor-default'
+                      : 'text-app-text/35 hover:text-app-text/60 hover:bg-app-hover-overlay/5'
+                  }`}
+                >
+                  <span
+                    className="w-1.5 h-1.5 rounded-full shrink-0"
+                    style={{ backgroundColor: installed ? agent.color : 'currentColor', opacity: installed ? 1 : 0.4 }}
+                  />
+                  <span className="truncate">{agent.name}</span>
+                </button>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {installModal && (
+        <AgentInstallModal
+          agent={installModal}
+          onClose={() => setInstallModal(null)}
+          onInstall={handleInstallAgent}
+        />
+      )}
     </aside>
   )
 }
