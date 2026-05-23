@@ -5,7 +5,7 @@ import { DARK_THEMES, LIGHT_THEMES } from '../themes'
 import {
   Plus, Terminal, Sparkles, Monitor, RectangleHorizontal, GitBranch,
   Trash2, Grid3X3, Columns2, Rows2, LayoutGrid, PanelRight,
-  Radio, Save, ChevronDown, Sun, Moon, Palette, Bookmark, Zap,
+  Radio, Save, ChevronDown, Palette, Bookmark, Zap,
 } from 'lucide-react'
 
 const ICON_MAP: Record<string, React.ComponentType<any>> = {
@@ -31,7 +31,7 @@ export default function Sidebar() {
     addTerminal, removeTerminal, setActiveTerminal, setGridLayout,
     toggleSidebar, toggleBroadcast,
     saveLayout, loadLayout, deleteLayout, setSavedLayouts,
-    setAppTheme, setTerminalTheme, renameSession,
+    setAppTheme, setTerminalTheme,
   } = useStore()
 
   const [showDelete, setShowDelete] = useState<string | null>(null)
@@ -127,12 +127,12 @@ export default function Sidebar() {
 
       <div className="p-3 border-b border-app-border/5">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-app-text/30">
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-app-text/55">
             Profiles
           </span>
           <button
             onClick={toggleSidebar}
-            className="p-1 rounded hover:bg-app-hover-overlay/5 text-app-text/30 hover:text-app-text/60 transition-colors"
+            className="p-1 rounded hover:bg-app-hover-overlay/5 text-app-text/50 hover:text-app-text/80 transition-colors"
           >
             <PanelRight size={14} />
           </button>
@@ -148,7 +148,7 @@ export default function Sidebar() {
               <span className="text-xs flex-1 text-left truncate">{profile.name}</span>
               <Plus
                 size={14}
-                className="opacity-0 group-hover:opacity-100 transition-opacity text-app-text/40"
+                className="opacity-0 group-hover:opacity-100 transition-opacity text-app-text/50"
               />
             </button>
           ))}
@@ -157,7 +157,7 @@ export default function Sidebar() {
 
       {terminals.length > 0 && (
         <div className="p-3 border-b border-app-border/5">
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-app-text/30 mb-3 block">
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-app-text/55 mb-3 block">
             Sessions
           </span>
           <div className="space-y-0.5 max-h-48 overflow-y-auto">
@@ -171,7 +171,7 @@ export default function Sidebar() {
                   className={`group flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer transition-all ${
                     activeTerminalId === term.id
                       ? 'bg-app-hover-overlay/8 text-app-text'
-                      : isIdle ? 'text-app-text/30' : 'text-app-text/50 hover:bg-app-hover-overlay/5 hover:text-app-text/70'
+                      : isIdle ? 'text-app-text/50' : 'text-app-text/65 hover:bg-app-hover-overlay/5 hover:text-app-text/80'
                   }`}
                   onClick={() => setActiveTerminal(term.id)}
                   onMouseEnter={() => setShowDelete(term.id)}
@@ -182,11 +182,11 @@ export default function Sidebar() {
                   <span className="text-xs flex-1 text-left truncate">
                     {term.customTitle || term.title}
                   </span>
-                  {isIdle && <span className="text-[8px] text-app-text/15">{idleFor}s</span>}
+                  {isIdle && <span className="text-[8px] text-app-text/40">{idleFor}s</span>}
                   {showDelete === term.id && (
                     <button
                       onClick={(e) => { e.stopPropagation(); handleCloseTerminal(term.id) }}
-                      className="p-0.5 rounded hover:bg-red-500/20 text-app-text/30 hover:text-red-400 transition-colors shrink-0"
+                      className="p-0.5 rounded hover:bg-red-500/20 text-app-text/50 hover:text-red-400 transition-colors shrink-0"
                     >
                       <Trash2 size={12} />
                     </button>
@@ -204,7 +204,7 @@ export default function Sidebar() {
           className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs font-medium transition-all ${
             broadcastMode
               ? 'bg-yellow-500/15 text-yellow-400 border border-yellow-500/20'
-              : 'text-app-text/40 hover:bg-app-hover-overlay/5 hover:text-app-text/60'
+              : 'text-app-text/60 hover:bg-app-hover-overlay/5 hover:text-app-text/80'
           }`}
         >
           <Radio size={13} className={broadcastMode ? 'animate-pulse' : ''} />
@@ -216,7 +216,7 @@ export default function Sidebar() {
       </div>
 
       <div className="p-3 border-b border-app-border/5">
-        <span className="text-[10px] font-semibold uppercase tracking-widest text-app-text/30 mb-2 block">
+        <span className="text-[10px] font-semibold uppercase tracking-widest text-app-text/55 mb-2 block">
           Layout
         </span>
         <div className="flex flex-wrap gap-1 mb-2">
@@ -230,7 +230,7 @@ export default function Sidebar() {
                 className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium transition-all ${
                   isActive
                     ? 'bg-accent/20 text-accent'
-                    : 'text-app-text/30 hover:bg-app-hover-overlay/5 hover:text-app-text/50'
+                    : 'text-app-text/55 hover:bg-app-hover-overlay/5 hover:text-app-text/80'
                 }`}
                 title={`${preset.cols}x${preset.rows}`}
               >
@@ -243,7 +243,7 @@ export default function Sidebar() {
 
         <button
           onClick={() => setShowLayouts(!showLayouts)}
-          className="flex items-center gap-1 text-[10px] text-app-text/25 hover:text-app-text/50 transition-colors mb-1"
+          className="flex items-center gap-1 text-[10px] text-app-text/50 hover:text-app-text/75 transition-colors mb-1"
         >
           <ChevronDown size={10} className={`transition-transform ${showLayouts ? 'rotate-0' : '-rotate-90'}`} />
           Saved Layouts
@@ -252,21 +252,21 @@ export default function Sidebar() {
         {showLayouts && (
           <div className="space-y-0.5 mb-1 animate-slide-up">
             {savedLayouts.length === 0 && (
-              <span className="text-[10px] text-app-text/15 italic">No saved layouts</span>
+              <span className="text-[10px] text-app-text/40 italic">No saved layouts</span>
             )}
             {savedLayouts.map((layout) => (
               <div key={layout.id} className="flex items-center gap-1 group">
                 <button
                   onClick={() => handleLoadLayout(layout.id)}
-                  className="flex-1 flex items-center gap-1.5 px-2 py-1 rounded text-[10px] text-app-text/40 hover:bg-app-hover-overlay/5 hover:text-app-text/70 transition-all text-left"
+                  className="flex-1 flex items-center gap-1.5 px-2 py-1 rounded text-[10px] text-app-text/60 hover:bg-app-hover-overlay/5 hover:text-app-text/80 transition-all text-left"
                 >
                   <Bookmark size={10} />
                   <span className="truncate">{layout.name}</span>
-                  <span className="text-app-text/15">{layout.cols}x{layout.rows}</span>
+                  <span className="text-app-text/40">{layout.cols}x{layout.rows}</span>
                 </button>
                 <button
                   onClick={() => handleDeleteLayout(layout.id)}
-                  className="p-0.5 rounded hover:bg-red-500/20 text-app-text/20 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                  className="p-0.5 rounded hover:bg-red-500/20 text-app-text/45 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
                 >
                   <Trash2 size={10} />
                 </button>
@@ -282,7 +282,7 @@ export default function Sidebar() {
               onChange={(e) => setLayoutName(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleSaveLayout(); if (e.key === 'Escape') setShowLayoutSave(false) }}
               placeholder="Layout name..."
-              className="flex-1 bg-app-hover-overlay/5 border border-app-border/10 rounded px-1.5 py-0.5 text-[10px] text-app-text/70 outline-none focus:border-accent/50 placeholder:text-app-text/20"
+              className="flex-1 bg-app-hover-overlay/5 border border-app-border/10 rounded px-1.5 py-0.5 text-[10px] text-app-text/70 outline-none focus:border-accent/50 placeholder:text-app-text/40"
               autoFocus
             />
             <button
@@ -295,7 +295,7 @@ export default function Sidebar() {
         ) : (
           <button
             onClick={() => setShowLayoutSave(true)}
-            className="flex items-center gap-1 text-[10px] text-app-text/25 hover:text-accent/60 transition-colors"
+            className="flex items-center gap-1 text-[10px] text-app-text/50 hover:text-accent/70 transition-colors"
           >
             <Save size={10} />
             Save current layout
@@ -304,14 +304,14 @@ export default function Sidebar() {
       </div>
 
       <div className="p-3 border-b border-app-border/5">
-        <span className="text-[10px] font-semibold uppercase tracking-widest text-app-text/30 mb-2 block">
+        <span className="text-[10px] font-semibold uppercase tracking-widest text-app-text/55 mb-2 block">
           View
         </span>
         <div className="flex gap-1 mb-2">
           <button
             onClick={() => setAppTheme('dark')}
             className={`flex-1 py-1 rounded text-[10px] font-medium transition-all ${
-              appTheme === 'dark' ? 'bg-accent/20 text-accent' : 'text-app-text/30 hover:bg-app-hover-overlay/5'
+              appTheme === 'dark' ? 'bg-accent/20 text-accent' : 'text-app-text/55 hover:bg-app-hover-overlay/5 hover:text-app-text/80'
             }`}
           >
             Dark
@@ -319,7 +319,7 @@ export default function Sidebar() {
           <button
             onClick={() => setAppTheme('light')}
             className={`flex-1 py-1 rounded text-[10px] font-medium transition-all ${
-              appTheme === 'light' ? 'bg-accent/20 text-accent' : 'text-app-text/30 hover:bg-app-hover-overlay/5'
+              appTheme === 'light' ? 'bg-accent/20 text-accent' : 'text-app-text/55 hover:bg-app-hover-overlay/5 hover:text-app-text/80'
             }`}
           >
             Light
@@ -328,7 +328,7 @@ export default function Sidebar() {
 
         <button
           onClick={() => setShowThemes(!showThemes)}
-          className="flex items-center gap-1 text-[10px] text-app-text/25 hover:text-app-text/50 transition-colors mb-1"
+          className="flex items-center gap-1 text-[10px] text-app-text/50 hover:text-app-text/75 transition-colors mb-1"
         >
           <Palette size={10} />
           <ChevronDown size={10} className={`transition-transform ${showThemes ? 'rotate-0' : '-rotate-90'}`} />
@@ -344,7 +344,7 @@ export default function Sidebar() {
                 className={`w-full flex items-center gap-2 px-2 py-1 rounded text-[10px] transition-all ${
                   terminalTheme.name === theme.name
                     ? 'bg-accent/15 text-accent'
-                    : 'text-app-text/30 hover:bg-app-hover-overlay/5 hover:text-app-text/50'
+                    : 'text-app-text/55 hover:bg-app-hover-overlay/5 hover:text-app-text/80'
                 }`}
               >
                 <div
