@@ -9,6 +9,8 @@ let mainWindow: BrowserWindow | null = null
 const shellManager = new ShellManager()
 
 function createWindow() {
+  const iconPath = path.join(__dirname, isDev ? '../public/icon.png' : '../dist/icon.png')
+
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
@@ -18,6 +20,7 @@ function createWindow() {
     titleBarStyle: 'hidden',
     backgroundColor: '#0a0a14',
     show: false,
+    icon: iconPath,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -138,6 +141,9 @@ function registerIpcHandlers() {
 }
 
 app.whenReady().then(() => {
+  if (process.platform === 'win32') {
+    app.setAppUserModelId('com.openmultiterm.app')
+  }
   registerIpcHandlers()
   createWindow()
 
