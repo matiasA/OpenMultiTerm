@@ -49,7 +49,6 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
       lineHeight: 1.4,
       scrollback: 5000,
       tabStopWidth: 4,
-      copyOnSelect: true,
     })
 
     const fitAddon = new FitAddon()
