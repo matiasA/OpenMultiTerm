@@ -26,10 +26,10 @@ function ProfileIcon({ icon, color }: { icon: string; color: string }) {
 
 export default function Sidebar() {
   const {
-    profiles, terminals, activeTerminalId, gridLayout, viewMode,
+    profiles, terminals, activeTerminalId, gridLayout,
     broadcastMode, savedLayouts, appTheme, terminalTheme,
     addTerminal, removeTerminal, setActiveTerminal, setGridLayout,
-    toggleSidebar, setViewMode, toggleBroadcast,
+    toggleSidebar, toggleBroadcast,
     saveLayout, loadLayout, deleteLayout, setSavedLayouts,
     setAppTheme, setTerminalTheme, renameSession,
   } = useStore()
@@ -307,29 +307,6 @@ export default function Sidebar() {
         <span className="text-[10px] font-semibold uppercase tracking-widest text-app-text/30 mb-2 block">
           View
         </span>
-        <div className="flex gap-1 mb-2">
-          <button
-            onClick={() => setViewMode('grid')}
-            className={`flex-1 py-1 rounded text-[10px] font-medium transition-all ${
-              viewMode === 'grid'
-                ? 'bg-accent/20 text-accent'
-                : 'text-app-text/30 hover:bg-app-hover-overlay/5 hover:text-app-text/50'
-            }`}
-          >
-            Grid
-          </button>
-          <button
-            onClick={() => setViewMode('tab')}
-            className={`flex-1 py-1 rounded text-[10px] font-medium transition-all ${
-              viewMode === 'tab'
-                ? 'bg-accent/20 text-accent'
-                : 'text-app-text/30 hover:bg-app-hover-overlay/5 hover:text-app-text/50'
-            }`}
-          >
-            Tabs
-          </button>
-        </div>
-
         <div className="flex gap-1 mb-2">
           <button
             onClick={() => setAppTheme('dark')}

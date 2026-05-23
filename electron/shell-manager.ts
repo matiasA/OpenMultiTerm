@@ -20,6 +20,19 @@ interface Session {
   profileId: string
 }
 
+function findGitBash(): string {
+  const candidates = [
+    'C:\\Program Files\\Git\\bin\\bash.exe',
+    'C:\\Program Files (x86)\\Git\\bin\\bash.exe',
+    `${process.env.LOCALAPPDATA}\\Programs\\Git\\bin\\bash.exe`,
+    `${process.env.USERPROFILE}\\scoop\\apps\\git\\current\\bin\\bash.exe`,
+  ]
+  for (const p of candidates) {
+    if (p && fs.existsSync(p)) return p
+  }
+  return 'bash'
+}
+
 const DEFAULT_PROFILES: Profile[] = [
   {
     id: 'powershell',
@@ -66,7 +79,7 @@ const DEFAULT_PROFILES: Profile[] = [
     name: 'Git Bash',
     icon: 'GitBranch',
     color: '#f05033',
-    command: 'C:\\Program Files\\Git\\bin\\bash.exe',
+    command: findGitBash(),
     args: ['--login'],
     cwd: null,
     env: {},

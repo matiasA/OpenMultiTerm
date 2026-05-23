@@ -22,7 +22,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: false,
+      sandbox: true,
     },
   })
 
@@ -78,8 +78,18 @@ function registerIpcHandlers() {
   })
 
   ipcMain.handle('profiles:get', () => shellManager.getProfiles())
-  ipcMain.handle('profiles:save', (_event, profile: any) => shellManager.saveProfile(profile))
-  ipcMain.handle('profiles:delete', (_event, id: string) => shellManager.deleteProfile(id))
+  ipcMain.handle('profiles:save', (_event, profile: any) => {
+    if (!profile || typeof profile !== 'object') throw new Error('Invalid profile')
+    if (typeof profile.id !== 'string' || !profile.id.trim()) throw new Error('Invalid profile id')
+    if (typeof profile.name !== 'string' || !profile.name.trim()) throw new Error('Invalid profile name')
+    if (typeof profile.command !== 'string' || !profile.command.trim()) throw new Error('Invalid profile command')
+    if (!Array.isArray(profile.args)) throw new Error('Invalid profile args')
+    return shellManager.saveProfile(profile)
+  })
+  ipcMain.handle('profiles:delete', (_event, id: string) => {
+    if (typeof id !== 'string' || !id.trim()) throw new Error('Invalid profile id')
+    return shellManager.deleteProfile(id)
+  })
 
   ipcMain.handle('export:save', async (_event, content: string, defaultName: string) => {
     const result = await dialog.showSaveDialog(mainWindow!, {
