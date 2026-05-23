@@ -2,6 +2,7 @@
   "name": "openmultiterm",
   "version": "1.0.0",
   "description": "Open-source multi-terminal manager",
+  "author": "Matias A",
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
