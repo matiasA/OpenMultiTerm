@@ -4,7 +4,7 @@ import type { Profile, TerminalSession, SavedLayout } from '../types'
 import { DARK_THEMES, LIGHT_THEMES } from '../themes'
 import {
   Plus, Terminal, Sparkles, Monitor, RectangleHorizontal, GitBranch,
-  Trash2, Grid3X3, Columns2, Rows2, LayoutGrid, PanelRight,
+  Trash2, Grid3X3, Columns2, Rows2, LayoutGrid,
   Radio, Save, ChevronDown, Palette, Bookmark, Zap,
 } from 'lucide-react'
 
@@ -29,7 +29,7 @@ export default function Sidebar() {
     profiles, terminals, activeTerminalId, gridLayout,
     broadcastMode, savedLayouts, appTheme, terminalTheme,
     addTerminal, removeTerminal, setActiveTerminal, setGridLayout,
-    toggleSidebar, toggleBroadcast,
+    toggleBroadcast,
     saveLayout, loadLayout, deleteLayout, setSavedLayouts,
     setAppTheme, setTerminalTheme,
   } = useStore()
@@ -130,12 +130,6 @@ export default function Sidebar() {
           <span className="text-[10px] font-semibold uppercase tracking-widest text-app-text/55">
             Profiles
           </span>
-          <button
-            onClick={toggleSidebar}
-            className="p-1 rounded hover:bg-app-hover-overlay/5 text-app-text/50 hover:text-app-text/80 transition-colors"
-          >
-            <PanelRight size={14} />
-          </button>
         </div>
         <div className="space-y-0.5">
           {profiles.map((profile) => (
