@@ -104,4 +104,17 @@ export const AGENTS: AgentDef[] = [
       url:   'https://github.com/openai/codex',
     },
   },
+  {
+    id: 'antigravity',
+    name: 'Antigravity',
+    command: 'agy',
+    color: '#34A853',
+    description: "Google's Antigravity AI agent for the terminal",
+    install: {
+      win:   'irm https://antigravity.google/cli/install.ps1 | iex',
+      mac:   'curl -fsSL https://antigravity.google/cli/install.sh | bash',
+      linux: 'curl -fsSL https://antigravity.google/cli/install.sh | bash',
+      url:   'https://antigravity.google',
+    },
+  },
 ]

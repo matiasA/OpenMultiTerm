@@ -155,9 +155,11 @@ export class ShellManager {
     const pid = session.ptyProcess.pid
     try {
       if (process.platform === 'win32') {
-        const out = execSync(`wmic process where "ProcessId=${pid}" get WorkingDirectory /value`, { timeout: 2000 }).toString()
-        const m = out.match(/WorkingDirectory=(.+)/)
-        return m ? m[1].trim() : null
+        const out = execSync(
+          `powershell -NoProfile -Command "(Get-CimInstance Win32_Process -Filter 'ProcessId=${pid}').WorkingDirectory"`,
+          { timeout: 3000 }
+        ).toString().trim()
+        return out || null
       } else if (process.platform === 'darwin') {
         const out = execSync(`lsof -a -d cwd -p ${pid} -Fn 2>/dev/null`, { timeout: 2000 }).toString()
         const line = out.split('\n').find(l => l.startsWith('n'))

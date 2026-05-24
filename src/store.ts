@@ -34,6 +34,8 @@ interface AppState {
   clearCommandHistory: () => void
 
   saveLayout: (name: string, cwds?: Record<string, string | null>) => SavedLayout
+  updateLayout: (layoutId: string, cwds?: Record<string, string | null>) => void
+  renameLayout: (layoutId: string, name: string) => void
   loadLayout: (layoutId: string) => void
   deleteLayout: (layoutId: string) => void
   setSavedLayouts: (layouts: SavedLayout[]) => void
@@ -171,6 +173,33 @@ export const useStore = create<AppState>((set, get) => ({
     }
     set((s) => ({ savedLayouts: [...s.savedLayouts, layout] }))
     return layout
+  },
+
+  renameLayout: (layoutId, name) =>
+    set((s) => ({
+      savedLayouts: s.savedLayouts.map((l) =>
+        l.id === layoutId ? { ...l, name } : l
+      ),
+    })),
+
+  updateLayout: (layoutId, cwds = {}) => {
+    const state = get()
+    set((s) => ({
+      savedLayouts: s.savedLayouts.map((l) =>
+        l.id === layoutId
+          ? {
+              ...l,
+              cols: state.gridLayout.cols,
+              rows: state.gridLayout.rows,
+              terminals: state.terminals.map((t) => ({
+                profileId: t.profileId,
+                title: t.customTitle || t.title,
+                cwd: cwds[t.id] ?? null,
+              })),
+            }
+          : l
+      ),
+    }))
   },
 
   loadLayout: (layoutId) => {

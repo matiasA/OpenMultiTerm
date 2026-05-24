@@ -7,7 +7,7 @@ import AgentInstallModal from './AgentInstallModal'
 import {
   Plus, Terminal, Sparkles, Monitor, RectangleHorizontal, GitBranch,
   Trash2, Grid3X3, Columns2, Rows2, LayoutGrid,
-  Radio, Save, ChevronDown, Palette, Bookmark, Zap, Bot,
+  Radio, Save, ChevronDown, Palette, Bookmark, Zap, Bot, Play, RotateCw,
 } from 'lucide-react'
 
 const ICON_MAP: Record<string, React.ComponentType<any>> = {
@@ -32,7 +32,7 @@ export default function Sidebar() {
     broadcastMode, savedLayouts, appTheme, terminalTheme,
     addTerminal, removeTerminal, setActiveTerminal, setGridLayout,
     toggleBroadcast,
-    saveLayout, loadLayout, deleteLayout, setSavedLayouts,
+    saveLayout, updateLayout, renameLayout, loadLayout, deleteLayout, setSavedLayouts,
     setAppTheme, setTerminalTheme,
   } = useStore()
 
@@ -41,6 +41,9 @@ export default function Sidebar() {
   const [layoutName, setLayoutName] = useState('')
   const [showLayoutSave, setShowLayoutSave] = useState(false)
   const [showLayouts, setShowLayouts] = useState(false)
+  const [selectedLayoutId, setSelectedLayoutId] = useState<string | null>(null)
+  const [renamingLayoutId, setRenamingLayoutId] = useState<string | null>(null)
+  const [renameLayoutValue, setRenameLayoutValue] = useState('')
   const [showAgents, setShowAgents] = useState(false)
   const [installedAgents, setInstalledAgents] = useState<string[]>([])
   const [installModal, setInstallModal] = useState<AgentDef | null>(null)
@@ -135,7 +138,37 @@ export default function Sidebar() {
     }, 200)
   }
 
+  const startRenameLayout = (layout: SavedLayout, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setRenamingLayoutId(layout.id)
+    setRenameLayoutValue(layout.name)
+  }
+
+  const commitRenameLayout = (layoutId: string) => {
+    const val = renameLayoutValue.trim()
+    if (val) renameLayout(layoutId, val)
+    window.electronAPI.layouts.save(useStore.getState().savedLayouts)
+    setRenamingLayoutId(null)
+  }
+
+  const handleRenameLayoutKeyDown = (e: React.KeyboardEvent, layoutId: string) => {
+    if (e.key === 'Enter') commitRenameLayout(layoutId)
+    if (e.key === 'Escape') setRenamingLayoutId(null)
+  }
+
+  const handleUpdateLayout = async (layoutId: string) => {
+    const cwds: Record<string, string | null> = {}
+    await Promise.all(
+      terminals.map(async (t) => {
+        cwds[t.id] = await window.electronAPI.terminal.getCwd(t.id).catch(() => null)
+      })
+    )
+    updateLayout(layoutId, cwds)
+    window.electronAPI.layouts.save(useStore.getState().savedLayouts)
+  }
+
   const handleDeleteLayout = (layoutId: string) => {
+    if (selectedLayoutId === layoutId) setSelectedLayoutId(null)
     deleteLayout(layoutId)
     window.electronAPI.layouts.save(useStore.getState().savedLayouts)
   }
@@ -275,24 +308,69 @@ export default function Sidebar() {
             {savedLayouts.length === 0 && (
               <span className="text-[10px] text-app-text/40 italic">No saved layouts</span>
             )}
-            {savedLayouts.map((layout) => (
-              <div key={layout.id} className="flex items-center gap-1 group">
-                <button
-                  onClick={() => handleLoadLayout(layout.id)}
-                  className="flex-1 flex items-center gap-1.5 px-2 py-1 rounded text-[10px] text-app-text/60 hover:bg-app-hover-overlay/5 hover:text-app-text/80 transition-all text-left"
+            {savedLayouts.map((layout) => {
+              const isSelected = selectedLayoutId === layout.id
+              return (
+                <div
+                  key={layout.id}
+                  className={`flex items-center gap-1 group rounded transition-all ${
+                    isSelected ? 'bg-accent/10 ring-1 ring-accent/20' : ''
+                  }`}
                 >
-                  <Bookmark size={10} />
-                  <span className="truncate">{layout.name}</span>
-                  <span className="text-app-text/40">{layout.cols}x{layout.rows}</span>
-                </button>
-                <button
-                  onClick={() => handleDeleteLayout(layout.id)}
-                  className="p-0.5 rounded hover:bg-red-500/20 text-app-text/45 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
-                >
-                  <Trash2 size={10} />
-                </button>
-              </div>
-            ))}
+                  {renamingLayoutId === layout.id ? (
+                    <input
+                      value={renameLayoutValue}
+                      onChange={(e) => setRenameLayoutValue(e.target.value)}
+                      onBlur={() => commitRenameLayout(layout.id)}
+                      onKeyDown={(e) => handleRenameLayoutKeyDown(e, layout.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex-1 bg-app-hover-overlay/5 border border-accent/40 rounded px-1.5 py-0.5 text-[10px] text-app-text/80 outline-none focus:border-accent/70 mx-1"
+                      autoFocus
+                    />
+                  ) : (
+                    <button
+                      onClick={() => setSelectedLayoutId(isSelected ? null : layout.id)}
+                      onDoubleClick={(e) => startRenameLayout(layout, e)}
+                      className={`flex-1 flex items-center gap-1.5 px-2 py-1 rounded text-[10px] transition-all text-left ${
+                        isSelected
+                          ? 'text-accent'
+                          : 'text-app-text/60 hover:bg-app-hover-overlay/5 hover:text-app-text/80'
+                      }`}
+                      title="Double-click to rename"
+                    >
+                      <Bookmark size={10} className={isSelected ? 'fill-accent/50' : ''} />
+                      <span className="truncate">{layout.name}</span>
+                      <span className={isSelected ? 'text-accent/60' : 'text-app-text/40'}>
+                        {layout.cols}x{layout.rows}
+                      </span>
+                    </button>
+                  )}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleLoadLayout(layout.id) }}
+                    className="p-0.5 rounded hover:bg-app-hover-overlay/10 text-app-text/40 hover:text-app-text/70 transition-colors opacity-0 group-hover:opacity-100"
+                    title="Load layout"
+                  >
+                    <Play size={10} />
+                  </button>
+                  {isSelected && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleUpdateLayout(layout.id) }}
+                      className="p-0.5 rounded hover:bg-accent/20 text-accent/60 hover:text-accent transition-colors"
+                      title="Update with current state"
+                    >
+                      <RotateCw size={10} />
+                    </button>
+                  )}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleDeleteLayout(layout.id) }}
+                    className="p-0.5 rounded hover:bg-red-500/20 text-app-text/45 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                    title="Delete layout"
+                  >
+                    <Trash2 size={10} />
+                  </button>
+                </div>
+              )
+            })}
           </div>
         )}
 
