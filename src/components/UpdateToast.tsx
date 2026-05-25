@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Download, RefreshCw, X, Check, AlertCircle } from 'lucide-react'
+import { useStore } from '../store'
 
 type UpdateState = 'idle' | 'checking' | 'available' | 'not-available' | 'downloaded' | 'error'
 
@@ -91,7 +92,13 @@ export default function UpdateToast({ onStateChange }: UpdateToastProps) {
         {state === 'downloaded' && (
           <div className="px-3 pb-3">
             <button
-              onClick={() => window.electronAPI.updater.install()}
+              onClick={async () => {
+                const { terminals, getSnapshot } = useStore.getState()
+                if (terminals.length > 0) {
+                  await window.electronAPI.snapshot.save(getSnapshot())
+                }
+                window.electronAPI.updater.install()
+              }}
               className="w-full py-1.5 rounded-md bg-accent hover:bg-accent/90 text-white text-[11px] font-medium transition-colors"
             >
               Restart now
