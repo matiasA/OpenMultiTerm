@@ -25,6 +25,7 @@ export interface ElectronAPI {
     get: () => Promise<any[]>
     save: (profile: any) => Promise<any[]>
     delete: (id: string) => Promise<any[]>
+    detectInstalled: () => Promise<string[]>
   }
   export: {
     save: (content: string, defaultName: string) => Promise<boolean>
@@ -43,11 +44,15 @@ export interface ElectronAPI {
   }
   app: {
     onWillQuit: (callback: () => void) => () => void
+    getVersion: () => Promise<string>
   }
   updater: {
+    onChecking: (callback: () => void) => () => void
     onAvailable: (callback: () => void) => () => void
+    onNotAvailable: (callback: () => void) => () => void
     onDownloaded: (callback: () => void) => () => void
     onError: (callback: () => void) => () => void
+    checkForUpdates: () => Promise<void>
     install: () => Promise<void>
   }
 }
@@ -85,6 +90,7 @@ const api: ElectronAPI = {
     get: () => ipcRenderer.invoke('profiles:get'),
     save: (profile) => ipcRenderer.invoke('profiles:save', profile),
     delete: (id) => ipcRenderer.invoke('profiles:delete', id),
+    detectInstalled: () => ipcRenderer.invoke('profiles:detectInstalled'),
   },
   export: {
     save: (content, defaultName) => ipcRenderer.invoke('export:save', content, defaultName),
@@ -107,12 +113,23 @@ const api: ElectronAPI = {
       ipcRenderer.on('app:will-quit', handler)
       return () => ipcRenderer.removeListener('app:will-quit', handler)
     },
+    getVersion: () => ipcRenderer.invoke('app:getVersion'),
   },
   updater: {
+    onChecking: (callback) => {
+      const handler = () => callback()
+      ipcRenderer.on('updater:checking', handler)
+      return () => ipcRenderer.removeListener('updater:checking', handler)
+    },
     onAvailable: (callback) => {
       const handler = () => callback()
       ipcRenderer.on('updater:available', handler)
       return () => ipcRenderer.removeListener('updater:available', handler)
+    },
+    onNotAvailable: (callback) => {
+      const handler = () => callback()
+      ipcRenderer.on('updater:not-available', handler)
+      return () => ipcRenderer.removeListener('updater:not-available', handler)
     },
     onDownloaded: (callback) => {
       const handler = () => callback()
@@ -124,6 +141,7 @@ const api: ElectronAPI = {
       ipcRenderer.on('updater:error', handler)
       return () => ipcRenderer.removeListener('updater:error', handler)
     },
+    checkForUpdates: () => ipcRenderer.invoke('updater:checkForUpdates'),
     install: () => ipcRenderer.invoke('updater:install'),
   },
 }

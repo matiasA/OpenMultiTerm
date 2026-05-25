@@ -1,58 +1,83 @@
 import { useEffect, useState } from 'react'
-import { Download, RefreshCw, X } from 'lucide-react'
+import { Download, RefreshCw, X, Check, AlertCircle } from 'lucide-react'
 
-type UpdateState = 'idle' | 'available' | 'downloaded' | 'error'
+type UpdateState = 'idle' | 'checking' | 'available' | 'not-available' | 'downloaded' | 'error'
 
-export default function UpdateToast() {
+interface UpdateToastProps {
+  onStateChange?: (state: UpdateState) => void
+}
+
+export default function UpdateToast({ onStateChange }: UpdateToastProps) {
   const [state, setState] = useState<UpdateState>('idle')
   const [visible, setVisible] = useState(false)
 
+  const transition = (next: UpdateState, show: boolean) => {
+    setState(next)
+    setVisible(show)
+    onStateChange?.(next)
+  }
+
   useEffect(() => {
-    const unsubAvailable = window.electronAPI.updater.onAvailable(() => {
-      setState('available')
-      setVisible(true)
-    })
-    const unsubDownloaded = window.electronAPI.updater.onDownloaded(() => {
-      setState('downloaded')
-      setVisible(true)
-    })
-    const unsubError = window.electronAPI.updater.onError(() => {
-      setVisible(false)
-    })
-    return () => {
-      unsubAvailable()
-      unsubDownloaded()
-      unsubError()
-    }
+    const unsubs = [
+      window.electronAPI.updater.onChecking(() => transition('checking', false)),
+      window.electronAPI.updater.onAvailable(() => transition('available', true)),
+      window.electronAPI.updater.onNotAvailable(() => {
+        transition('not-available', true)
+        setTimeout(() => setVisible(false), 3000)
+      }),
+      window.electronAPI.updater.onDownloaded(() => transition('downloaded', true)),
+      window.electronAPI.updater.onError(() => {
+        transition('error', true)
+        setTimeout(() => setVisible(false), 4000)
+      }),
+    ]
+    return () => unsubs.forEach((fn) => fn())
   }, [])
 
   if (!visible) return null
+
+  const config = {
+    available: {
+      icon: <Download size={13} className="animate-bounce" />,
+      iconBg: 'bg-blue-500/15 text-blue-400',
+      title: 'Update available',
+      body: 'Downloading in the background…',
+    },
+    downloaded: {
+      icon: <RefreshCw size={13} />,
+      iconBg: 'bg-accent/15 text-accent',
+      title: 'Update ready',
+      body: 'Restart OpenMultiTerm to apply the new version.',
+    },
+    'not-available': {
+      icon: <Check size={13} />,
+      iconBg: 'bg-green-500/15 text-green-400',
+      title: 'Up to date',
+      body: 'You are running the latest version.',
+    },
+    error: {
+      icon: <AlertCircle size={13} />,
+      iconBg: 'bg-red-500/15 text-red-400',
+      title: 'Update check failed',
+      body: 'Could not reach the update server.',
+    },
+  } as const
+
+  if (state === 'idle' || state === 'checking') return null
+  const c = config[state as keyof typeof config]
+  if (!c) return null
 
   return (
     <div className="fixed bottom-9 right-3 z-50 w-72 animate-slide-up">
       <div className="bg-app-elevated border border-app-border/10 rounded-lg shadow-lg shadow-black/30 overflow-hidden">
         <div className="flex items-start gap-3 p-3">
-          <div className={`mt-0.5 shrink-0 rounded-full p-1.5 ${
-            state === 'downloaded'
-              ? 'bg-accent/15 text-accent'
-              : 'bg-blue-500/15 text-blue-400'
-          }`}>
-            {state === 'downloaded'
-              ? <RefreshCw size={13} />
-              : <Download size={13} className="animate-bounce" />
-            }
+          <div className={`mt-0.5 shrink-0 rounded-full p-1.5 ${c.iconBg}`}>
+            {c.icon}
           </div>
 
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-semibold text-app-text/90">
-              {state === 'downloaded' ? 'Update ready' : 'Update available'}
-            </p>
-            <p className="text-[10px] text-app-text/50 mt-0.5">
-              {state === 'downloaded'
-                ? 'Restart OpenMultiTerm to apply the new version.'
-                : 'Downloading in the background…'
-              }
-            </p>
+            <p className="text-[11px] font-semibold text-app-text/90">{c.title}</p>
+            <p className="text-[10px] text-app-text/50 mt-0.5">{c.body}</p>
           </div>
 
           <button

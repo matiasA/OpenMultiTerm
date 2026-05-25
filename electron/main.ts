@@ -157,8 +157,22 @@ function registerIpcHandlers() {
     autoUpdater.quitAndInstall()
   })
 
+  ipcMain.handle('app:getVersion', () => app.getVersion())
+
+  ipcMain.handle('updater:checkForUpdates', async () => {
+    try {
+      await autoUpdater.checkForUpdates()
+    } catch (err: any) {
+      mainWindow?.webContents.send('updater:error')
+    }
+  })
+
+  ipcMain.handle('profiles:detectInstalled', () => {
+    return shellManager.detectInstalledProfiles()
+  })
+
   ipcMain.handle('agents:detect', () => {
-    const commands = ['claude', 'opencode', 'gh', 'gemini', 'hermes', 'clawbot', 'codex']
+    const commands = ['claude', 'opencode', 'gh', 'gemini', 'hermes', 'clawbot', 'codex', 'agy', 'warp']
     const installed: string[] = []
     for (const cmd of commands) {
       try {
@@ -186,21 +200,29 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 
+  autoUpdater.on('checking-for-update', () => {
+    mainWindow?.webContents.send('updater:checking')
+  })
+
+  autoUpdater.on('update-available', () => {
+    mainWindow?.webContents.send('updater:available')
+  })
+
+  autoUpdater.on('update-not-available', () => {
+    mainWindow?.webContents.send('updater:not-available')
+  })
+
+  autoUpdater.on('update-downloaded', () => {
+    mainWindow?.webContents.send('updater:downloaded')
+  })
+
+  autoUpdater.on('error', (err) => {
+    console.error('Auto-updater error:', err.message)
+    mainWindow?.webContents.send('updater:error')
+  })
+
   if (!isDev) {
     autoUpdater.checkForUpdates()
-
-    autoUpdater.on('update-available', () => {
-      mainWindow?.webContents.send('updater:available')
-    })
-
-    autoUpdater.on('update-downloaded', () => {
-      mainWindow?.webContents.send('updater:downloaded')
-    })
-
-    autoUpdater.on('error', (err) => {
-      console.error('Auto-updater error:', err.message)
-      mainWindow?.webContents.send('updater:error')
-    })
   }
 })
 

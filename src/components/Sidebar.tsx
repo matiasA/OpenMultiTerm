@@ -3,16 +3,20 @@ import { useStore } from '../store'
 import type { Profile, TerminalSession, SavedLayout } from '../types'
 import { DARK_THEMES, LIGHT_THEMES } from '../themes'
 import { AGENTS, type AgentDef } from '../agents'
+import { PROFILE_INSTALL_INFO, type ProfileInstallInfo } from '../profile-install-info'
 import AgentInstallModal from './AgentInstallModal'
 import {
   Plus, Terminal, Sparkles, Monitor, RectangleHorizontal, GitBranch,
   Trash2, Grid3X3, Columns2, Rows2, LayoutGrid,
   Radio, Save, ChevronDown, Palette, Bookmark, Zap, Bot, Play, RotateCw,
+  RefreshCw, Check, AlertCircle,
 } from 'lucide-react'
 
 const ICON_MAP: Record<string, React.ComponentType<any>> = {
-  Terminal, Sparkles, Monitor, RectangleHorizontal, GitBranch,
+  Terminal, Sparkles, Monitor, RectangleHorizontal, GitBranch, Bot,
 }
+
+const AGENT_PROFILE_IDS = new Set(['claude', 'opencode', 'gh', 'gemini', 'hermes', 'clawbot', 'codex', 'antigravity', 'warp'])
 
 function ProfileIcon({ icon, color }: { icon: string; color: string }) {
   const Icon = ICON_MAP[icon] || Terminal
@@ -37,6 +41,7 @@ export default function Sidebar() {
   } = useStore()
 
   const [showDelete, setShowDelete] = useState<string | null>(null)
+  const [showAllProfiles, setShowAllProfiles] = useState(false)
   const [showThemes, setShowThemes] = useState(false)
   const [layoutName, setLayoutName] = useState('')
   const [showLayoutSave, setShowLayoutSave] = useState(false)
@@ -47,12 +52,30 @@ export default function Sidebar() {
   const [showAgents, setShowAgents] = useState(false)
   const [installedAgents, setInstalledAgents] = useState<string[]>([])
   const [installModal, setInstallModal] = useState<AgentDef | null>(null)
+  const [installedProfiles, setInstalledProfiles] = useState<string[]>([])
+  const [profileInstallModal, setProfileInstallModal] = useState<ProfileInstallInfo | null>(null)
+  const [appVersion, setAppVersion] = useState<string>('')
+  const [updateCheckState, setUpdateCheckState] = useState<'idle' | 'checking' | 'ok' | 'error'>('idle')
 
   useEffect(() => {
     window.electronAPI.layouts.load().then((layouts: SavedLayout[]) => {
       if (layouts.length) setSavedLayouts(layouts)
     })
     window.electronAPI.agents.detect().then(setInstalledAgents).catch(() => {})
+    window.electronAPI.profiles.detectInstalled().then(setInstalledProfiles).catch(() => {})
+    window.electronAPI.app.getVersion().then(setAppVersion).catch(() => {})
+
+    const unsubChecking = window.electronAPI.updater.onChecking(() => setUpdateCheckState('checking'))
+    const unsubOk = window.electronAPI.updater.onNotAvailable(() => {
+      setUpdateCheckState('ok')
+      setTimeout(() => setUpdateCheckState('idle'), 3000)
+    })
+    const unsubErr = window.electronAPI.updater.onError(() => {
+      setUpdateCheckState('error')
+      setTimeout(() => setUpdateCheckState('idle'), 4000)
+    })
+    const unsubAvailable = window.electronAPI.updater.onAvailable(() => setUpdateCheckState('idle'))
+    return () => { unsubChecking(); unsubOk(); unsubErr(); unsubAvailable() }
   }, [])
 
   const handleNewTerminal = async (profile: Profile) => {
@@ -66,6 +89,11 @@ export default function Sidebar() {
         lastActivityTime: Date.now(),
       }
       addTerminal(session)
+      if (profile.launchCommand) {
+        setTimeout(() => {
+          window.electronAPI.terminal.write(sessionId, profile.launchCommand! + '\r')
+        }, 600)
+      }
     } catch (err: any) {
       console.error('Failed to create terminal:', err)
     }
@@ -192,21 +220,81 @@ export default function Sidebar() {
           </span>
         </div>
         <div className="space-y-0.5">
-          {profiles.map((profile) => (
-            <button
-              key={profile.id}
-              onClick={() => handleNewTerminal(profile)}
-              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-app-hover-overlay/5 text-app-text/70 hover:text-app-text transition-all group"
-            >
-              <ProfileIcon icon={profile.icon} color={profile.color} />
-              <span className="text-xs flex-1 text-left truncate">{profile.name}</span>
-              <Plus
-                size={14}
-                className="opacity-0 group-hover:opacity-100 transition-opacity text-app-text/50"
-              />
-            </button>
-          ))}
+          {(() => {
+            const allProfiles = profiles.filter((p) => !AGENT_PROFILE_IDS.has(p.id))
+            const visibleProfiles = showAllProfiles ? allProfiles : allProfiles.slice(0, 5)
+            return (
+              <>
+                {visibleProfiles.map((profile) => {
+                  const isInstalled = installedProfiles.length === 0 || installedProfiles.includes(profile.id)
+                  const installInfo = PROFILE_INSTALL_INFO.find((i) => i.id === profile.id)
+                  const canShowInstall = !isInstalled && !!installInfo
+                  return (
+                    <button
+                      key={profile.id}
+                      onClick={() => canShowInstall ? setProfileInstallModal(installInfo!) : handleNewTerminal(profile)}
+                      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md transition-all group ${
+                        isInstalled
+                          ? 'hover:bg-app-hover-overlay/5 text-app-text/70 hover:text-app-text'
+                          : 'text-app-text/30 hover:bg-app-hover-overlay/3 cursor-pointer'
+                      }`}
+                      title={canShowInstall ? `${profile.name} — not installed, click to install` : profile.name}
+                    >
+                      <div className={isInstalled ? '' : 'opacity-40'}>
+                        <ProfileIcon icon={profile.icon} color={profile.color} />
+                      </div>
+                      <span className="text-xs flex-1 text-left truncate">{profile.name}</span>
+                      {isInstalled ? (
+                        <Plus size={14} className="opacity-0 group-hover:opacity-100 transition-opacity text-app-text/50" />
+                      ) : (
+                        <span className="text-[9px] text-app-text/25 shrink-0">not installed</span>
+                      )}
+                    </button>
+                  )
+                })}
+                {allProfiles.length > 5 && (
+                  <button
+                    onClick={() => setShowAllProfiles(!showAllProfiles)}
+                    className="w-full flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] text-app-text/40 hover:text-app-text/65 hover:bg-app-hover-overlay/5 transition-all"
+                  >
+                    <ChevronDown size={10} className={`transition-transform ${showAllProfiles ? 'rotate-0' : '-rotate-90'}`} />
+                    {showAllProfiles ? 'Show less' : `${allProfiles.length - 5} more…`}
+                  </button>
+                )}
+              </>
+            )
+          })()}
         </div>
+
+        {/* Agent profiles — only show installed ones */}
+        {profiles.filter((p) => AGENT_PROFILE_IDS.has(p.id) && installedProfiles.includes(p.id)).length > 0 && (
+          <>
+            <div className="mt-2 mb-1.5 flex items-center gap-1.5">
+              <div className="h-px flex-1 bg-app-border/8" />
+              <span className="text-[9px] uppercase tracking-widest text-app-text/30">Agents</span>
+              <div className="h-px flex-1 bg-app-border/8" />
+            </div>
+            <div className="space-y-0.5">
+              {profiles
+                .filter((p) => AGENT_PROFILE_IDS.has(p.id) && installedProfiles.includes(p.id))
+                .map((profile) => {
+                  const agentDef = AGENTS.find((a) => a.id === profile.id)
+                  return (
+                    <button
+                      key={profile.id}
+                      onClick={() => handleNewTerminal(profile)}
+                      className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md transition-all group hover:bg-app-hover-overlay/5 text-app-text/70 hover:text-app-text"
+                      title={agentDef?.description || profile.name}
+                    >
+                      <ProfileIcon icon={profile.icon} color={profile.color} />
+                      <span className="text-xs flex-1 text-left truncate">{profile.name}</span>
+                      <Plus size={14} className="opacity-0 group-hover:opacity-100 transition-opacity text-app-text/50" />
+                    </button>
+                  )
+                })}
+            </div>
+          </>
+        )}
       </div>
 
       {terminals.length > 0 && (
@@ -511,6 +599,45 @@ export default function Sidebar() {
           onInstall={handleInstallAgent}
         />
       )}
+
+      {profileInstallModal && (
+        <AgentInstallModal
+          agent={{ ...profileInstallModal, command: profileInstallModal.id }}
+          onClose={() => setProfileInstallModal(null)}
+          onInstall={handleInstallAgent}
+        />
+      )}
+
+      <div className="mt-auto p-3 border-t border-app-border/5 flex items-center justify-between">
+        <span className="text-[10px] text-app-text/30 font-mono">
+          {appVersion ? `v${appVersion}` : ''}
+        </span>
+        <button
+          onClick={() => {
+            setUpdateCheckState('checking')
+            window.electronAPI.updater.checkForUpdates()
+          }}
+          disabled={updateCheckState === 'checking'}
+          title={
+            updateCheckState === 'checking' ? 'Checking for updates…'
+            : updateCheckState === 'ok' ? 'Up to date'
+            : updateCheckState === 'error' ? 'Update check failed'
+            : 'Check for updates'
+          }
+          className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] transition-all disabled:cursor-not-allowed text-app-text/35 hover:text-app-text/70 hover:bg-app-hover-overlay/5 disabled:text-app-text/25"
+        >
+          {updateCheckState === 'checking' && <RefreshCw size={10} className="animate-spin" />}
+          {updateCheckState === 'ok' && <Check size={10} className="text-green-400" />}
+          {updateCheckState === 'error' && <AlertCircle size={10} className="text-red-400" />}
+          {updateCheckState === 'idle' && <RefreshCw size={10} />}
+          <span>
+            {updateCheckState === 'checking' ? 'Checking…'
+              : updateCheckState === 'ok' ? 'Up to date'
+              : updateCheckState === 'error' ? 'Check failed'
+              : 'Check for updates'}
+          </span>
+        </button>
+      </div>
     </aside>
   )
 }

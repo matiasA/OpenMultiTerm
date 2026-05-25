@@ -7,6 +7,8 @@ export interface Profile {
   args: string[]
   cwd: string | null
   env: Record<string, string>
+  detectCommand?: string
+  launchCommand?: string
 }
 
 export interface TerminalSession {

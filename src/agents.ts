@@ -117,4 +117,17 @@ export const AGENTS: AgentDef[] = [
       url:   'https://antigravity.google',
     },
   },
+  {
+    id: 'warp',
+    name: 'Warp Agent',
+    command: 'warp',
+    color: '#01A4FF',
+    description: "Warp's AI agent mode for the terminal",
+    install: {
+      win:   'winget install Warp.Warp',
+      mac:   'brew install --cask warp',
+      linux: 'curl -fsSL https://app.warp.dev/get_warp | bash',
+      url:   'https://warp.dev',
+    },
+  },
 ]

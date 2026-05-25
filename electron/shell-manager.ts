@@ -13,6 +13,8 @@ export interface Profile {
   args: string[]
   cwd: string | null
   env: Record<string, string>
+  detectCommand?: string
+  launchCommand?: string
 }
 
 interface Session {
@@ -33,6 +35,7 @@ function findGitBash(): string {
   }
   return 'bash'
 }
+
 
 const DEFAULT_PROFILES: Profile[] = [
   {
@@ -85,6 +88,16 @@ const DEFAULT_PROFILES: Profile[] = [
     cwd: null,
     env: {},
   },
+  // CLI agent profiles — open a clean PowerShell and auto-type the agent command
+  { id: 'claude',       name: 'Claude Code', icon: 'Bot', color: '#CC785C', command: 'powershell.exe', args: [], detectCommand: 'claude',   launchCommand: 'claude',       cwd: null, env: {} },
+  { id: 'opencode',     name: 'OpenCode',    icon: 'Bot', color: '#7c5cfc', command: 'powershell.exe', args: [], detectCommand: 'opencode', launchCommand: 'opencode',     cwd: null, env: {} },
+  { id: 'gh',           name: 'Copilot CLI', icon: 'Bot', color: '#6e40c9', command: 'powershell.exe', args: [], detectCommand: 'gh',       launchCommand: 'gh copilot',   cwd: null, env: {} },
+  { id: 'gemini',       name: 'Gemini CLI',  icon: 'Bot', color: '#4285F4', command: 'powershell.exe', args: [], detectCommand: 'gemini',   launchCommand: 'gemini',       cwd: null, env: {} },
+  { id: 'hermes',       name: 'Hermes',      icon: 'Bot', color: '#FF6B35', command: 'powershell.exe', args: [], detectCommand: 'hermes',   launchCommand: 'hermes',       cwd: null, env: {} },
+  { id: 'clawbot',      name: 'OpenClaw',    icon: 'Bot', color: '#E63946', command: 'powershell.exe', args: [], detectCommand: 'clawbot',  launchCommand: 'clawbot',      cwd: null, env: {} },
+  { id: 'codex',        name: 'Codex CLI',   icon: 'Bot', color: '#10A37F', command: 'powershell.exe', args: [], detectCommand: 'codex',    launchCommand: 'codex',        cwd: null, env: {} },
+  { id: 'antigravity',  name: 'Antigravity', icon: 'Bot', color: '#34A853', command: 'powershell.exe', args: [], detectCommand: 'agy',      launchCommand: 'agy',          cwd: null, env: {} },
+  { id: 'warp',         name: 'Warp Agent',  icon: 'Bot', color: '#01A4FF', command: 'powershell.exe', args: [], detectCommand: 'warp',     launchCommand: 'warp',         cwd: null, env: {} },
 ]
 
 export class ShellManager {
@@ -113,6 +126,32 @@ export class ShellManager {
       if (fs.existsSync(this.profilesPath)) {
         const data = fs.readFileSync(this.profilesPath, 'utf-8')
         this.profiles = JSON.parse(data)
+        let changed = false
+        // Inject new seeded profiles that don't exist yet
+        for (const seeded of DEFAULT_PROFILES) {
+          if (!this.profiles.some((p) => p.id === seeded.id)) {
+            this.profiles.push({ ...seeded })
+            changed = true
+          }
+        }
+        // Migrate: remove putty — fails inside a PTY
+        const before = this.profiles.length
+        this.profiles = this.profiles.filter((p) => p.id !== 'putty')
+        if (this.profiles.length !== before) changed = true
+        // Migrate: update all agent profiles to the launchCommand approach
+        for (const seeded of DEFAULT_PROFILES) {
+          if (!seeded.launchCommand) continue
+          const saved = this.profiles.find((p) => p.id === seeded.id)
+          if (saved && (saved.command !== seeded.command || saved.args.join(' ') !== seeded.args.join(' ') || saved.launchCommand !== seeded.launchCommand)) {
+            saved.command = seeded.command
+            saved.args = seeded.args
+            saved.detectCommand = seeded.detectCommand
+            saved.launchCommand = seeded.launchCommand
+            saved.icon = seeded.icon
+            changed = true
+          }
+        }
+        if (changed) this.saveProfilesToDisk()
       } else {
         this.profiles = [...DEFAULT_PROFILES]
         this.saveProfilesToDisk()
@@ -120,6 +159,23 @@ export class ShellManager {
     } catch {
       this.profiles = [...DEFAULT_PROFILES]
     }
+  }
+
+  detectInstalledProfiles(): string[] {
+    const installed: string[] = []
+    for (const profile of this.profiles) {
+      try {
+        const cmd = profile.detectCommand || profile.command
+        if (path.isAbsolute(cmd) || cmd.includes('\\') || cmd.includes('/')) {
+          if (fs.existsSync(cmd)) installed.push(profile.id)
+        } else {
+          const check = process.platform === 'win32' ? `where ${cmd}` : `which ${cmd}`
+          execSync(check, { stdio: 'pipe', timeout: 1500 })
+          installed.push(profile.id)
+        }
+      } catch {}
+    }
+    return installed
   }
 
   private saveProfilesToDisk() {
@@ -222,7 +278,12 @@ export class ShellManager {
 
   resize(sessionId: string, cols: number, rows: number) {
     const session = this.sessions.get(sessionId)
-    if (session) session.ptyProcess.resize(cols, rows)
+    if (!session) return
+    try {
+      session.ptyProcess.resize(cols, rows)
+    } catch {
+      // PTY may have exited between the session map check and the resize call
+    }
   }
 
   destroy(sessionId: string) {
