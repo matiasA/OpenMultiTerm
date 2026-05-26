@@ -1,12 +1,13 @@
-import { app } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import { WebSocketServer, WebSocket } from 'ws'
 import { ShellManager } from './shell-manager'
 import { initLogger, log } from './logger'
 import { initState, generateToken, writeState, clearState, releaseSpawnLock } from './state'
 import { METHODS, EVENTS, Request, Response, DaemonEvent } from './protocol'
 
-// Daemon mode — no BrowserWindow created, Electron stays invisible.
-// GPU flags are passed via CLI args by the launcher; nothing extra needed here.
+// Daemon mode — runs Electron headless (no visible window).
+// A hidden off-screen window is created so the NSIS installer can send WM_CLOSE
+// to gracefully shut down the daemon process during an update install.
 
 const clients = new Set<WebSocket>()
 let shellManager: ShellManager
@@ -220,14 +221,40 @@ function startDaemonServer(userDataPath: string) {
   }, 30_000)
 }
 
+function gracefulShutdown(reason: string) {
+  log.info(`Daemon shutting down: ${reason}`)
+  const sessions = shellManager?.listSessions() ?? []
+  if (sessions.length > 0) {
+    shellManager?.saveSnapshot({ terminals: sessions, shutdownAt: new Date().toISOString() })
+  }
+  shellManager?.destroyAll()
+  clearState()
+  releaseSpawnLock()
+  app.exit(0)
+}
+
 app.whenReady().then(() => {
   const userDataPath = app.getPath('userData')
   initLogger(userDataPath)
   initState(userDataPath)
   log.info('Daemon starting...')
   startDaemonServer(userDataPath)
+
+  // Hidden off-screen window — gives NSIS installer a target for WM_CLOSE.
+  // When the installer sends WM_CLOSE (during update install), we shut down cleanly
+  // instead of blocking the installer with "cannot close application" dialog.
+  const hiddenWin = new BrowserWindow({
+    show: false,
+    skipTaskbar: true,
+    width: 1,
+    height: 1,
+    webPreferences: { nodeIntegration: false, contextIsolation: true },
+  })
+  hiddenWin.on('close', () => gracefulShutdown('installer/OS close request'))
 })
 
 app.on('window-all-closed', () => {
-  // Daemon has no windows — prevent Electron default quit behavior
+  // Allow quit when the hidden window is closed (installer or OS shutdown).
+  // Do NOT quit for any other reason — daemon must survive normal UI window close.
+  if (BrowserWindow.getAllWindows().length === 0) app.quit()
 })
