@@ -20,20 +20,47 @@ export default function App() {
 
   useEffect(() => {
     const loadData = async () => {
-      const profiles = await window.electronAPI.profiles.get()
+      // Profiles — retry once if the daemon is still warming up
+      let profiles: Profile[] = []
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          profiles = await window.electronAPI.profiles.get()
+          break
+        } catch (err) {
+          if (attempt < 2) await new Promise(r => setTimeout(r, 800 * (attempt + 1)))
+          else console.error('Could not load profiles:', err)
+        }
+      }
       setProfiles(profiles)
 
-      const layouts = await window.electronAPI.layouts.load()
-      if (layouts.length) setSavedLayouts(layouts)
+      try {
+        const layouts = await window.electronAPI.layouts.load()
+        if (layouts.length) setSavedLayouts(layouts)
+      } catch {}
 
       if (restoredRef.current) return
       restoredRef.current = true
 
-      const snapshot = await window.electronAPI.snapshot.load()
-      if (snapshot && snapshot.terminals && snapshot.terminals.length > 0) {
-        await window.electronAPI.snapshot.clear()
-        setTimeout(() => restoreSnapshot(snapshot), 400)
+      // Primary path: re-attach to live daemon sessions (PTYs survived window close)
+      const liveSessions = await window.electronAPI.terminal.list().catch(() => [])
+      if (liveSessions.length > 0) {
+        const snapshot = await window.electronAPI.snapshot.load().catch(() => null)
+        if (snapshot?.gridLayout) setGridLayout(snapshot.gridLayout.cols, snapshot.gridLayout.rows)
+        liveSessions.forEach(({ sessionId, profileId }: { sessionId: string; profileId: string }) => {
+          const profile = profiles.find((p: Profile) => p.id === profileId)
+          addTerminal({ id: sessionId, profileId, title: profile?.name ?? 'Terminal', status: 'running', lastActivityTime: Date.now() })
+        })
+        return
       }
+
+      // Fallback: no live sessions → daemon restarted, restore from snapshot
+      try {
+        const snapshot = await window.electronAPI.snapshot.load()
+        if (snapshot && snapshot.terminals && snapshot.terminals.length > 0) {
+          await window.electronAPI.snapshot.clear()
+          setTimeout(() => restoreSnapshot(snapshot), 400)
+        }
+      } catch {}
     }
 
     loadData()

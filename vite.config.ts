@@ -15,7 +15,7 @@ export default defineConfig({
           build: {
             outDir: 'dist-electron',
             rollupOptions: {
-              external: ['node-pty'],
+              external: ['node-pty', 'ws', 'electron-updater', './daemon-launcher', './daemon-client', './daemon'],
             },
           },
         },
@@ -28,6 +28,44 @@ export default defineConfig({
         vite: {
           build: {
             outDir: 'dist-electron',
+          },
+        },
+      },
+      {
+        entry: 'electron/daemon-launcher.ts',
+        vite: {
+          build: {
+            outDir: 'dist-electron',
+            rollupOptions: {
+              external: ['node-pty', 'ws', 'electron'],
+            },
+          },
+        },
+      },
+      {
+        entry: 'electron/daemon-client.ts',
+        vite: {
+          build: {
+            outDir: 'dist-electron',
+            rollupOptions: {
+              // protocol.ts is bundled inline (it's just types + constants)
+              external: ['node-pty', 'ws', 'electron'],
+            },
+          },
+        },
+      },
+      {
+        entry: 'daemon/index.ts',
+        vite: {
+          build: {
+            outDir: 'dist-electron',
+            rollupOptions: {
+              external: ['node-pty', 'ws', 'electron'],
+              output: {
+                // Output as daemon.js so require('./daemon') resolves correctly
+                entryFileNames: 'daemon.js',
+              },
+            },
           },
         },
       },
