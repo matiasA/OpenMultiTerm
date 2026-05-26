@@ -229,12 +229,13 @@ function startUI() {
     autoUpdater.on('update-available', () => mainWindow?.webContents.send('updater:available'))
     autoUpdater.on('update-not-available', () => mainWindow?.webContents.send('updater:not-available'))
     autoUpdater.on('update-downloaded', () => mainWindow?.webContents.send('updater:downloaded'))
+    // Background check errors are silent — user can't act on them; logged to console only.
+    // Manual checks (updater:checkForUpdates IPC) send the error event themselves.
     autoUpdater.on('error', (err) => {
       console.error('Auto-updater error:', err.message)
-      mainWindow?.webContents.send('updater:error')
     })
 
-    if (!isDev) autoUpdater.checkForUpdates()
+    if (!isDev) setTimeout(() => autoUpdater.checkForUpdates().catch(() => {}), 10_000)
   })
 
   // Close window only — daemon keeps running with all sessions alive
