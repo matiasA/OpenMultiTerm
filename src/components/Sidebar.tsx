@@ -228,11 +228,10 @@ export default function Sidebar() {
     <aside className="w-60 shrink-0 glass border-r border-app-border/5 flex flex-col animate-slide-in overflow-y-auto font-mono">
 
       {/* === AGENTS === */}
-      <div className="p-3 border-b border-app-border/5">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-app-text/55">
-            Agents
-          </span>
+      <div className="px-3 pt-3 pb-2 border-b border-app-border/5">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-app-text/35">Agents</span>
+          <div className="flex-1 h-px bg-app-border/6" />
         </div>
         <div className="space-y-0.5">
           {(() => {
@@ -332,11 +331,10 @@ export default function Sidebar() {
       </div>
 
       {/* === SHELLS === */}
-      <div className="p-3 border-b border-app-border/5">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-app-text/55">
-            Shells
-          </span>
+      <div className="px-3 pt-3 pb-2 border-b border-app-border/5">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-app-text/35">Shells</span>
+          <div className="flex-1 h-px bg-app-border/6" />
         </div>
         <div className="space-y-0.5">
           {(() => {
@@ -389,10 +387,11 @@ export default function Sidebar() {
       </div>
 
       {terminals.length > 0 && (
-        <div className="p-3 border-b border-app-border/5">
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-app-text/55 mb-3 block">
-            Sessions
-          </span>
+        <div className="px-3 pt-3 pb-2 border-b border-app-border/5">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-app-text/35">Sessions</span>
+            <div className="flex-1 h-px bg-app-border/6" />
+          </div>
           <div className="space-y-0.5 max-h-48 overflow-y-auto">
             {terminals.map((term) => {
               const profile = profiles.find((p) => p.id === term.profileId)
@@ -431,27 +430,28 @@ export default function Sidebar() {
         </div>
       )}
 
-      <div className="p-3 border-b border-app-border/5">
+      <div className="px-3 py-2 border-b border-app-border/5">
         <button
           onClick={toggleBroadcast}
-          className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs font-medium transition-all ${
+          className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[11px] font-medium transition-all ${
             broadcastMode
-              ? 'bg-yellow-500/15 text-yellow-400 border border-yellow-500/20'
-              : 'text-app-text/60 hover:bg-app-hover-overlay/5 hover:text-app-text/80'
+              ? 'bg-yellow-500/12 text-yellow-400/90 ring-1 ring-yellow-500/20'
+              : 'text-app-text/45 hover:bg-app-hover-overlay/5 hover:text-app-text/70'
           }`}
         >
-          <Radio size={13} className={broadcastMode ? 'animate-pulse' : ''} />
-          <span>Broadcast {broadcastMode ? 'ON' : 'OFF'}</span>
-          {broadcastMode && (
-            <span className="ml-auto w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
-          )}
+          <Radio size={12} className={broadcastMode ? 'animate-pulse' : ''} />
+          <span>Broadcast</span>
+          <span className={`ml-auto text-[9px] font-bold tracking-wider ${broadcastMode ? 'text-yellow-400' : 'text-app-text/25'}`}>
+            {broadcastMode ? 'ON' : 'OFF'}
+          </span>
         </button>
       </div>
 
-      <div className="p-3 border-b border-app-border/5">
-        <span className="text-[10px] font-semibold uppercase tracking-widest text-app-text/55 mb-2 block">
-          Layout
-        </span>
+      <div className="px-3 pt-3 pb-2 border-b border-app-border/5">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-app-text/35">Layout</span>
+          <div className="flex-1 h-px bg-app-border/6" />
+        </div>
         <div className="flex flex-wrap gap-1 mb-2">
           {gridPresets.map((preset) => {
             const Icon = preset.icon
@@ -581,10 +581,11 @@ export default function Sidebar() {
         )}
       </div>
 
-      <div className="p-3 border-b border-app-border/5">
-        <span className="text-[10px] font-semibold uppercase tracking-widest text-app-text/55 mb-2 block">
-          View
-        </span>
+      <div className="px-3 pt-3 pb-2 border-b border-app-border/5">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-app-text/35">View</span>
+          <div className="flex-1 h-px bg-app-border/6" />
+        </div>
         <div className="flex gap-1 mb-2">
           <button
             onClick={() => setAppTheme('dark')}

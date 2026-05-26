@@ -238,7 +238,7 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
   return (
     <div
       className={`flex flex-col bg-app-bg overflow-hidden relative group transition-all ${
-        isActive ? 'ring-1 ring-accent/30 z-10' : 'ring-1 ring-app-border/5'
+        isActive ? 'ring-1 ring-accent/25 z-10' : 'ring-1 ring-app-border/5'
       }`}
       onClick={() => setActiveTerminal(session.id)}
       draggable
@@ -247,10 +247,15 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
         e.dataTransfer.effectAllowed = 'move'
       }}
     >
-      <div className="h-7 flex items-center gap-2 px-2 bg-app-bg-secondary border-b border-app-border/5 shrink-0">
+      {/* Tab header */}
+      <div className={`h-8 flex items-center gap-2 px-2.5 border-b shrink-0 transition-colors ${
+        isActive
+          ? 'bg-app-bg-secondary border-app-border/8 border-t-2 border-t-accent/70'
+          : 'bg-app-bg border-app-border/5'
+      }`}>
         <span
-          className="w-2 h-2 rounded-full shrink-0 status-dot"
-          style={{ backgroundColor: profile?.color || '#7c5cfc' }}
+          className="w-2 h-2 rounded-full shrink-0"
+          style={{ backgroundColor: profile?.color || '#7c5cfc', opacity: isActive ? 1 : 0.5 }}
         />
 
         {isRenaming ? (
@@ -260,12 +265,14 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
             onChange={(e) => setRenameValue(e.target.value)}
             onBlur={commitRename}
             onKeyDown={handleRenameKeyDown}
-            className="flex-1 bg-app-hover-overlay/5 border border-app-border/10 rounded px-1.5 py-0.5 text-[10px] text-app-text/80 outline-none focus:border-accent/50"
+            className="flex-1 bg-app-hover-overlay/5 border border-accent/30 rounded px-1.5 py-0.5 text-[10px] text-app-text/90 outline-none focus:border-accent/60"
             autoFocus
           />
         ) : (
           <span
-            className="text-[10px] text-app-text/50 font-medium truncate flex-1 cursor-text"
+            className={`text-[10px] font-medium truncate flex-1 cursor-text transition-colors ${
+              isActive ? 'text-app-text/85' : 'text-app-text/40'
+            }`}
             onDoubleClick={startRename}
             title="Double-click to rename"
           >
@@ -273,31 +280,35 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
           </span>
         )}
 
-        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className={`flex items-center gap-0.5 transition-opacity ${
+          isActive ? 'opacity-60 hover:opacity-100' : 'opacity-0 group-hover:opacity-60'
+        }`}>
           <button
             onClick={(e) => { e.stopPropagation(); handleCopyBuffer() }}
-            className="p-1 rounded hover:bg-app-hover-overlay/10 text-app-text/30 hover:text-app-text/60"
+            className="p-1 rounded hover:bg-app-hover-overlay/10 text-app-text/50 hover:text-app-text/80 transition-colors"
             title={copied ? 'Copied!' : 'Copy buffer'}
           >
-            {copied ? <Check size={11} /> : <Copy size={11} />}
+            {copied ? <Check size={11} className="text-green-400" /> : <Copy size={11} />}
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); handleExport() }}
-            className="p-1 rounded hover:bg-app-hover-overlay/10 text-app-text/30 hover:text-app-text/60"
+            className="p-1 rounded hover:bg-app-hover-overlay/10 text-app-text/50 hover:text-app-text/80 transition-colors"
             title="Export to file"
           >
             <Download size={11} />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); setShowSearch(!showSearch) }}
-            className="p-1 rounded hover:bg-app-hover-overlay/10 text-app-text/30 hover:text-app-text/60"
-            title="Search"
+            className={`p-1 rounded hover:bg-app-hover-overlay/10 transition-colors ${
+              showSearch ? 'text-accent' : 'text-app-text/50 hover:text-app-text/80'
+            }`}
+            title="Search (Ctrl+F)"
           >
             <SearchIcon size={11} />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); handleClose() }}
-            className="p-1 rounded hover:bg-red-500/30 text-app-text/30 hover:text-red-400"
+            className="p-1 rounded hover:bg-red-500/20 text-app-text/50 hover:text-red-400 transition-colors"
             title="Close"
           >
             <X size={12} />

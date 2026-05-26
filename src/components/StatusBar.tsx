@@ -1,5 +1,6 @@
+import { useEffect, useState } from 'react'
 import { useStore } from '../store'
-import { Terminal, Radio, Zap } from 'lucide-react'
+import { Terminal, Radio } from 'lucide-react'
 
 export default function StatusBar() {
   const { terminals, activeTerminalId, profiles, broadcastMode, terminalTheme } = useStore()
@@ -8,46 +9,69 @@ export default function StatusBar() {
     ? profiles.find((p) => p.id === activeTerminal.profileId)
     : null
 
+  const [cwd, setCwd] = useState<string | null>(null)
   const runningCount = terminals.filter((t) => t.status === 'running').length
 
+  useEffect(() => {
+    if (!activeTerminalId) { setCwd(null); return }
+    let cancelled = false
+    window.electronAPI.terminal.getCwd(activeTerminalId)
+      .then((p) => { if (!cancelled) setCwd(p) })
+      .catch(() => { if (!cancelled) setCwd(null) })
+    const interval = setInterval(() => {
+      window.electronAPI.terminal.getCwd(activeTerminalId)
+        .then((p) => { if (!cancelled) setCwd(p) })
+        .catch(() => {})
+    }, 3000)
+    return () => { cancelled = true; clearInterval(interval) }
+  }, [activeTerminalId])
+
+  const shortCwd = cwd
+    ? cwd.replace(/^[A-Z]:\\Users\\[^\\]+/, '~').replace(/\\/g, '/')
+    : null
+
+  const Sep = () => <span className="text-app-text/15 select-none">·</span>
+
   return (
-    <div className="h-7 flex items-center gap-3 px-3 bg-app-bg-secondary border-t border-app-border/5 shrink-0">
-      <div className="flex items-center gap-1.5">
-        <Terminal size={11} className="text-app-text/55" />
-        <span className="text-[10px] text-app-text/55">
-          {runningCount} terminal{runningCount !== 1 ? 's' : ''} active
-        </span>
+    <div className="h-6 flex items-center gap-2 px-3 bg-app-bg border-t border-app-border/5 shrink-0 text-[10px]">
+
+      {/* Left: terminal count */}
+      <div className="flex items-center gap-1.5 text-app-text/40">
+        <Terminal size={10} />
+        <span>{runningCount} terminal{runningCount !== 1 ? 's' : ''}</span>
       </div>
 
       {broadcastMode && (
         <>
-          <span className="text-app-border/10">|</span>
-          <div className="flex items-center gap-1 text-[10px] text-yellow-400/80 animate-pulse">
+          <Sep />
+          <div className="flex items-center gap-1 text-yellow-400/70 animate-pulse">
             <Radio size={10} />
-            <span>Broadcasting</span>
+            <span>Broadcast</span>
           </div>
         </>
       )}
 
       {activeProfile && (
         <>
-          <span className="text-app-border/10">|</span>
+          <Sep />
           <div className="flex items-center gap-1.5">
-            <span
-              className="w-1.5 h-1.5 rounded-full"
-              style={{ backgroundColor: activeProfile.color }}
-            />
-            <span className="text-[10px] text-app-text/55">{activeProfile.name}</span>
+            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: activeProfile.color }} />
+            <span className="text-app-text/55">{activeProfile.name}</span>
           </div>
+        </>
+      )}
+
+      {shortCwd && (
+        <>
+          <Sep />
+          <span className="text-app-text/35 truncate max-w-xs font-mono">{shortCwd}</span>
         </>
       )}
 
       <div className="flex-1" />
 
-      <div className="flex items-center gap-1.5 text-[10px] text-app-text/45">
-        <Zap size={10} />
-        <span>{terminalTheme.name}</span>
-      </div>
+      {/* Right: theme name */}
+      <span className="text-app-text/25">{terminalTheme.name}</span>
     </div>
   )
 }
