@@ -40,13 +40,13 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
     const terminal = new Terminal({
       cursorBlink: true,
       cursorStyle: 'bar',
-      fontSize: 13,
-      fontFamily: terminalTheme.fontFamily ?? '"Cascadia Code", "JetBrains Mono", "Fira Code", "Consolas", monospace',
+      fontSize: 14,
+      fontFamily: terminalTheme.fontFamily ?? '"Consolas", "Noto Sans Mono", "JetBrains Mono", "Cascadia Code", monospace',
       theme: terminalTheme,
       allowProposedApi: true,
       allowTransparency: true,
-      letterSpacing: 0.5,
-      lineHeight: 1.4,
+      letterSpacing: 0,
+      lineHeight: 1.0,
       scrollback: 5000,
       tabStopWidth: 4,
     })
@@ -61,6 +61,16 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
 
     terminal.open(containerRef.current)
     fitAddon.fit()
+
+    // Replay buffered output from daemon (session survived a window close)
+    window.electronAPI.terminal.attach(session.id).then((payload) => {
+      if (!payload) return
+      if (payload.serialized) {
+        terminal.write(payload.serialized)
+      } else if (payload.ring) {
+        terminal.write(payload.ring)
+      }
+    }).catch(() => {})
 
     terminal.attachCustomKeyEventHandler((e) => {
       if (e.type !== 'keydown') return true
@@ -146,7 +156,7 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
     const term = terminalRef.current
     if (term) {
       term.options.theme = terminalTheme
-      term.options.fontFamily = terminalTheme.fontFamily ?? '"Cascadia Code", "JetBrains Mono", "Fira Code", "Consolas", monospace'
+      term.options.fontFamily = terminalTheme.fontFamily ?? '"Consolas", "Noto Sans Mono", "JetBrains Mono", "Cascadia Code", monospace'
       const rows = term.rows
       if (rows > 0) {
         term.refresh(0, rows - 1)

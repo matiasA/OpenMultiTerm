@@ -9,11 +9,11 @@ import {
   Plus, Terminal, Sparkles, Monitor, RectangleHorizontal, GitBranch,
   Trash2, Grid3X3, Columns2, Rows2, LayoutGrid,
   Radio, Save, ChevronDown, Palette, Bookmark, Zap, Bot, Play, RotateCw,
-  RefreshCw, Check, AlertCircle,
+  RefreshCw, Check, AlertCircle, FolderOpen,
 } from 'lucide-react'
 
 const ICON_MAP: Record<string, React.ComponentType<any>> = {
-  Terminal, Sparkles, Monitor, RectangleHorizontal, GitBranch, Bot,
+  Terminal, Sparkles, Monitor, RectangleHorizontal, GitBranch, Bot, Zap,
 }
 
 const AGENT_PROFILE_IDS = new Set(['claude', 'opencode', 'gh', 'gemini', 'hermes', 'clawbot', 'codex', 'antigravity', 'warp'])
@@ -41,7 +41,9 @@ export default function Sidebar() {
   } = useStore()
 
   const [showDelete, setShowDelete] = useState<string | null>(null)
-  const [showAllProfiles, setShowAllProfiles] = useState(false)
+  const [showAllAgents, setShowAllAgents] = useState(false)
+  const [showAllShells, setShowAllShells] = useState(false)
+  const [pendingAgent, setPendingAgent] = useState<{ profileId: string; cwd: string } | null>(null)
   const [showThemes, setShowThemes] = useState(false)
   const [layoutName, setLayoutName] = useState('')
   const [showLayoutSave, setShowLayoutSave] = useState(false)
@@ -49,8 +51,6 @@ export default function Sidebar() {
   const [selectedLayoutId, setSelectedLayoutId] = useState<string | null>(null)
   const [renamingLayoutId, setRenamingLayoutId] = useState<string | null>(null)
   const [renameLayoutValue, setRenameLayoutValue] = useState('')
-  const [showAgents, setShowAgents] = useState(false)
-  const [installedAgents, setInstalledAgents] = useState<string[]>([])
   const [installModal, setInstallModal] = useState<AgentDef | null>(null)
   const [installedProfiles, setInstalledProfiles] = useState<string[]>([])
   const [profileInstallModal, setProfileInstallModal] = useState<ProfileInstallInfo | null>(null)
@@ -61,7 +61,6 @@ export default function Sidebar() {
     window.electronAPI.layouts.load().then((layouts: SavedLayout[]) => {
       if (layouts.length) setSavedLayouts(layouts)
     })
-    window.electronAPI.agents.detect().then(setInstalledAgents).catch(() => {})
     window.electronAPI.profiles.detectInstalled().then(setInstalledProfiles).catch(() => {})
     window.electronAPI.app.getVersion().then(setAppVersion).catch(() => {})
 
@@ -78,9 +77,9 @@ export default function Sidebar() {
     return () => { unsubChecking(); unsubOk(); unsubErr(); unsubAvailable() }
   }, [])
 
-  const handleNewTerminal = async (profile: Profile) => {
+  const handleNewTerminal = async (profile: Profile, cwd?: string) => {
     try {
-      const { sessionId } = await window.electronAPI.terminal.create(profile.id, 120, 40)
+      const { sessionId } = await window.electronAPI.terminal.create(profile.id, 120, 40, cwd || null)
       const session: TerminalSession = {
         id: sessionId,
         profileId: profile.id,
@@ -97,6 +96,21 @@ export default function Sidebar() {
     } catch (err: any) {
       console.error('Failed to create terminal:', err)
     }
+  }
+
+  const handleBrowseFolder = async () => {
+    const selected = await window.electronAPI.dialog.selectFolder()
+    if (selected !== null && pendingAgent) {
+      setPendingAgent({ ...pendingAgent, cwd: selected })
+    }
+  }
+
+  const handleLaunchAgent = async () => {
+    if (!pendingAgent) return
+    const profile = profiles.find((p) => p.id === pendingAgent.profileId)
+    if (!profile) return
+    setPendingAgent(null)
+    await handleNewTerminal(profile, pendingAgent.cwd || undefined)
   }
 
   const handleCloseTerminal = (id: string) => {
@@ -213,19 +227,126 @@ export default function Sidebar() {
   return (
     <aside className="w-60 shrink-0 glass border-r border-app-border/5 flex flex-col animate-slide-in overflow-y-auto font-mono">
 
+      {/* === AGENTS === */}
       <div className="p-3 border-b border-app-border/5">
         <div className="flex items-center justify-between mb-3">
           <span className="text-[10px] font-semibold uppercase tracking-widest text-app-text/55">
-            Profiles
+            Agents
           </span>
         </div>
         <div className="space-y-0.5">
           {(() => {
-            const allProfiles = profiles.filter((p) => !AGENT_PROFILE_IDS.has(p.id))
-            const visibleProfiles = showAllProfiles ? allProfiles : allProfiles.slice(0, 5)
+            const agentProfiles = profiles.filter((p) => AGENT_PROFILE_IDS.has(p.id))
+            const visibleAgents = showAllAgents ? agentProfiles : agentProfiles.slice(0, 3)
             return (
               <>
-                {visibleProfiles.map((profile) => {
+                {visibleAgents.map((profile) => {
+                  const isInstalled = installedProfiles.length === 0 || installedProfiles.includes(profile.id)
+                  const agentDef = AGENTS.find((a) => a.id === profile.id)
+                  const canInstall = !isInstalled && !!agentDef
+                  const isPending = pendingAgent?.profileId === profile.id
+                  return (
+                    <div key={profile.id}>
+                      <button
+                        onClick={() => {
+                          if (canInstall) setInstallModal(agentDef!)
+                          else if (isPending) setPendingAgent(null)
+                          else setPendingAgent({ profileId: profile.id, cwd: '' })
+                        }}
+                        className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md transition-all group ${
+                          isPending
+                            ? 'bg-app-hover-overlay/8 text-app-text'
+                            : isInstalled
+                            ? 'hover:bg-app-hover-overlay/5 text-app-text/70 hover:text-app-text'
+                            : 'text-app-text/30 hover:bg-app-hover-overlay/3 cursor-pointer'
+                        }`}
+                        title={canInstall ? `${profile.name} — not installed, click to install` : (agentDef?.description || profile.name)}
+                      >
+                        <div className={isInstalled ? '' : 'opacity-40'}>
+                          <ProfileIcon icon={profile.icon} color={profile.color} />
+                        </div>
+                        <span className="text-xs flex-1 text-left truncate">{profile.name}</span>
+                        {isInstalled ? (
+                          <FolderOpen size={13} className={`transition-opacity text-app-text/40 ${isPending ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
+                        ) : (
+                          <span className="text-[9px] text-app-text/25 shrink-0">not installed</span>
+                        )}
+                      </button>
+
+                      {isPending && (
+                        <div className="mt-0.5 mx-1 mb-1 p-2 rounded-md bg-app-hover-overlay/6 border border-app-border/8 animate-slide-up">
+                          <div className="flex items-center gap-1.5 mb-2 min-w-0">
+                            <FolderOpen size={11} className="text-app-text/40 shrink-0" />
+                            <input
+                              value={pendingAgent!.cwd}
+                              onChange={(e) => setPendingAgent({ ...pendingAgent!, cwd: e.target.value })}
+                              placeholder="Home folder (default)"
+                              className="flex-1 min-w-0 bg-transparent text-[10px] text-app-text/75 outline-none placeholder:text-app-text/30 truncate"
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleLaunchAgent()
+                                if (e.key === 'Escape') setPendingAgent(null)
+                              }}
+                            />
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={handleBrowseFolder}
+                              className="flex items-center gap-1 px-2 py-1 rounded text-[10px] text-app-text/55 hover:text-app-text/85 hover:bg-app-hover-overlay/8 transition-colors"
+                            >
+                              <FolderOpen size={10} />
+                              Browse
+                            </button>
+                            <button
+                              onClick={() => setPendingAgent(null)}
+                              className="px-2 py-1 rounded text-[10px] text-app-text/35 hover:text-app-text/65 hover:bg-app-hover-overlay/5 transition-colors"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={handleLaunchAgent}
+                              className="ml-auto flex items-center gap-1 px-2 py-1 rounded text-[10px] bg-accent/15 text-accent hover:bg-accent/25 transition-colors"
+                            >
+                              <Play size={10} />
+                              Launch
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+                {agentProfiles.length > 3 && (
+                  <button
+                    onClick={() => setShowAllAgents(!showAllAgents)}
+                    className="w-full flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] text-app-text/40 hover:text-app-text/65 hover:bg-app-hover-overlay/5 transition-all"
+                  >
+                    <ChevronDown size={10} className={`transition-transform ${showAllAgents ? 'rotate-0' : '-rotate-90'}`} />
+                    {showAllAgents ? 'Show less' : `${agentProfiles.length - 3} more…`}
+                  </button>
+                )}
+              </>
+            )
+          })()}
+        </div>
+      </div>
+
+      {/* === SHELLS === */}
+      <div className="p-3 border-b border-app-border/5">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-app-text/55">
+            Shells
+          </span>
+        </div>
+        <div className="space-y-0.5">
+          {(() => {
+            const shellProfiles = profiles
+              .filter((p) => !AGENT_PROFILE_IDS.has(p.id))
+              .sort((a, b) => a.id === 'nexus' ? -1 : b.id === 'nexus' ? 1 : 0)
+            const visibleShells = showAllShells ? shellProfiles : shellProfiles.slice(0, 3)
+            return (
+              <>
+                {visibleShells.map((profile) => {
                   const isInstalled = installedProfiles.length === 0 || installedProfiles.includes(profile.id)
                   const installInfo = PROFILE_INSTALL_INFO.find((i) => i.id === profile.id)
                   const canShowInstall = !isInstalled && !!installInfo
@@ -252,49 +373,19 @@ export default function Sidebar() {
                     </button>
                   )
                 })}
-                {allProfiles.length > 5 && (
+                {shellProfiles.length > 3 && (
                   <button
-                    onClick={() => setShowAllProfiles(!showAllProfiles)}
+                    onClick={() => setShowAllShells(!showAllShells)}
                     className="w-full flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] text-app-text/40 hover:text-app-text/65 hover:bg-app-hover-overlay/5 transition-all"
                   >
-                    <ChevronDown size={10} className={`transition-transform ${showAllProfiles ? 'rotate-0' : '-rotate-90'}`} />
-                    {showAllProfiles ? 'Show less' : `${allProfiles.length - 5} more…`}
+                    <ChevronDown size={10} className={`transition-transform ${showAllShells ? 'rotate-0' : '-rotate-90'}`} />
+                    {showAllShells ? 'Show less' : `${shellProfiles.length - 3} more…`}
                   </button>
                 )}
               </>
             )
           })()}
         </div>
-
-        {/* Agent profiles — only show installed ones */}
-        {profiles.filter((p) => AGENT_PROFILE_IDS.has(p.id) && installedProfiles.includes(p.id)).length > 0 && (
-          <>
-            <div className="mt-2 mb-1.5 flex items-center gap-1.5">
-              <div className="h-px flex-1 bg-app-border/8" />
-              <span className="text-[9px] uppercase tracking-widest text-app-text/30">Agents</span>
-              <div className="h-px flex-1 bg-app-border/8" />
-            </div>
-            <div className="space-y-0.5">
-              {profiles
-                .filter((p) => AGENT_PROFILE_IDS.has(p.id) && installedProfiles.includes(p.id))
-                .map((profile) => {
-                  const agentDef = AGENTS.find((a) => a.id === profile.id)
-                  return (
-                    <button
-                      key={profile.id}
-                      onClick={() => handleNewTerminal(profile)}
-                      className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md transition-all group hover:bg-app-hover-overlay/5 text-app-text/70 hover:text-app-text"
-                      title={agentDef?.description || profile.name}
-                    >
-                      <ProfileIcon icon={profile.icon} color={profile.color} />
-                      <span className="text-xs flex-1 text-left truncate">{profile.name}</span>
-                      <Plus size={14} className="opacity-0 group-hover:opacity-100 transition-opacity text-app-text/50" />
-                    </button>
-                  )
-                })}
-            </div>
-          </>
-        )}
       </div>
 
       {terminals.length > 0 && (
@@ -552,46 +643,6 @@ export default function Sidebar() {
           </div>
         )}
       </div>
-      <div className="p-3 border-b border-app-border/5">
-        <button
-          onClick={() => setShowAgents(!showAgents)}
-          className="flex items-center gap-1 w-full text-[10px] text-app-text/50 hover:text-app-text/75 transition-colors"
-        >
-          <Bot size={10} />
-          <span className="font-semibold uppercase tracking-widest flex-1 text-left">CLI Agents</span>
-          <span className="text-accent/70 font-mono mr-1">
-            {installedAgents.length}/{AGENTS.length}
-          </span>
-          <ChevronDown size={10} className={`transition-transform ${showAgents ? 'rotate-0' : '-rotate-90'}`} />
-        </button>
-
-        {showAgents && (
-          <div className="mt-2 grid grid-cols-3 gap-1 animate-slide-up">
-            {AGENTS.map((agent) => {
-              const installed = installedAgents.includes(agent.command)
-              return (
-                <button
-                  key={agent.id}
-                  onClick={() => !installed && setInstallModal(agent)}
-                  title={installed ? `${agent.name} — installed` : `${agent.name} — click to install`}
-                  className={`flex items-center gap-1 px-1.5 py-1 rounded text-[10px] truncate transition-all ${
-                    installed
-                      ? 'text-app-text/70 cursor-default'
-                      : 'text-app-text/35 hover:text-app-text/60 hover:bg-app-hover-overlay/5'
-                  }`}
-                >
-                  <span
-                    className="w-1.5 h-1.5 rounded-full shrink-0"
-                    style={{ backgroundColor: installed ? agent.color : 'currentColor', opacity: installed ? 1 : 0.4 }}
-                  />
-                  <span className="truncate">{agent.name}</span>
-                </button>
-              )
-            })}
-          </div>
-        )}
-      </div>
-
       {installModal && (
         <AgentInstallModal
           agent={installModal}

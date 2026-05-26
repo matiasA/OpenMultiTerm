@@ -18,6 +18,8 @@ export interface ElectronAPI {
     write: (sessionId: string, data: string) => void
     resize: (sessionId: string, cols: number, rows: number) => void
     destroy: (sessionId: string) => void
+    attach: (sessionId: string) => Promise<{ serialized: string; ring: string } | null>
+    list: () => Promise<Array<{ sessionId: string; profileId: string }>>
     onData: (callback: (sessionId: string, data: string) => void) => () => void
     onExit: (callback: (sessionId: string, code: number) => void) => () => void
   }
@@ -26,6 +28,9 @@ export interface ElectronAPI {
     save: (profile: any) => Promise<any[]>
     delete: (id: string) => Promise<any[]>
     detectInstalled: () => Promise<string[]>
+  }
+  dialog: {
+    selectFolder: () => Promise<string | null>
   }
   export: {
     save: (content: string, defaultName: string) => Promise<boolean>
@@ -75,6 +80,8 @@ const api: ElectronAPI = {
     write: (sessionId, data) => ipcRenderer.send('terminal:write', sessionId, data),
     resize: (sessionId, cols, rows) => ipcRenderer.send('terminal:resize', sessionId, cols, rows),
     destroy: (sessionId) => ipcRenderer.send('terminal:destroy', sessionId),
+    attach: (sessionId) => ipcRenderer.invoke('terminal:attach', sessionId),
+    list: () => ipcRenderer.invoke('terminal:list'),
     onData: (callback) => {
       const handler = (_event: any, sessionId: string, data: string) => callback(sessionId, data)
       ipcRenderer.on('terminal:data', handler)
@@ -91,6 +98,9 @@ const api: ElectronAPI = {
     save: (profile) => ipcRenderer.invoke('profiles:save', profile),
     delete: (id) => ipcRenderer.invoke('profiles:delete', id),
     detectInstalled: () => ipcRenderer.invoke('profiles:detectInstalled'),
+  },
+  dialog: {
+    selectFolder: () => ipcRenderer.invoke('dialog:selectFolder'),
   },
   export: {
     save: (content, defaultName) => ipcRenderer.invoke('export:save', content, defaultName),

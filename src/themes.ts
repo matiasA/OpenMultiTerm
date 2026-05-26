@@ -3,7 +3,7 @@ import type { XtermTheme } from './types'
 export const OMT_DARK: XtermTheme = {
   name: 'OpenMultiTerm Dark',
   variant: 'dark',
-  fontFamily: '"CaskaydiaCove Nerd Font", "Cascadia Code NF", "Cascadia Code", "CaskaydiaMono Nerd Font", "Cascadia Mono", "Consolas", monospace',
+  fontFamily: '"Consolas", "Noto Sans Mono", "JetBrains Mono", "JetBrainsMono Nerd Font", "Cascadia Code", monospace',
   background: '#0a0a14',
   foreground: '#e0e0e8',
   cursor: '#7c5cfc',
@@ -30,7 +30,7 @@ export const OMT_DARK: XtermTheme = {
 export const OMT_LIGHT: XtermTheme = {
   name: 'OpenMultiTerm Light',
   variant: 'light',
-  fontFamily: '"CaskaydiaCove Nerd Font", "Cascadia Code NF", "Cascadia Code", "CaskaydiaMono Nerd Font", "Cascadia Mono", "Consolas", monospace',
+  fontFamily: '"Consolas", "Noto Sans Mono", "JetBrains Mono", "JetBrainsMono Nerd Font", "Cascadia Code", monospace',
   background: '#f5f5fa',
   foreground: '#1a1a2e',
   cursor: '#7c5cfc',
@@ -57,7 +57,7 @@ export const OMT_LIGHT: XtermTheme = {
 export const ONE_DARK: XtermTheme = {
   name: 'One Dark',
   variant: 'dark',
-  fontFamily: '"JetBrainsMono Nerd Font", "JetBrains Mono NF", "JetBrains Mono", "FiraCode Nerd Font", "Fira Code NF", "Fira Code", "Consolas", monospace',
+  fontFamily: '"Consolas", "Noto Sans Mono", "JetBrains Mono", "JetBrainsMono Nerd Font", "Fira Code", monospace',
   background: '#282c34',
   foreground: '#abb2bf',
   cursor: '#528bff',
@@ -84,7 +84,7 @@ export const ONE_DARK: XtermTheme = {
 export const DRACULA: XtermTheme = {
   name: 'Dracula',
   variant: 'dark',
-  fontFamily: '"FiraCode Nerd Font", "Fira Code NF", "Fira Code", "JetBrainsMono Nerd Font", "JetBrains Mono", "CaskaydiaCove Nerd Font", "Cascadia Code", monospace',
+  fontFamily: '"Noto Sans Mono", "JetBrains Mono", "JetBrainsMono Nerd Font", "Fira Code", "Cascadia Code", monospace',
   background: '#282a36',
   foreground: '#f8f8f2',
   cursor: '#f8f8f2',
@@ -111,7 +111,7 @@ export const DRACULA: XtermTheme = {
 export const TOKYO_NIGHT: XtermTheme = {
   name: 'Tokyo Night',
   variant: 'dark',
-  fontFamily: '"JetBrainsMono Nerd Font", "JetBrains Mono NF", "JetBrains Mono", "CaskaydiaCove Nerd Font", "Cascadia Code", "Consolas", monospace',
+  fontFamily: '"Consolas", "Noto Sans Mono", "JetBrains Mono", "JetBrainsMono Nerd Font", "Cascadia Code", monospace',
   background: '#1a1b26',
   foreground: '#c0caf5',
   cursor: '#c0caf5',
@@ -138,7 +138,7 @@ export const TOKYO_NIGHT: XtermTheme = {
 export const NORD: XtermTheme = {
   name: 'Nord',
   variant: 'dark',
-  fontFamily: '"CaskaydiaMono Nerd Font", "Cascadia Mono NF", "Cascadia Mono", "Consolas", "Courier New", monospace',
+  fontFamily: '"Consolas", "Noto Sans Mono", "JetBrains Mono", "JetBrainsMono Nerd Font", "Cascadia Mono", monospace',
   background: '#2e3440',
   foreground: '#d8dee9',
   cursor: '#d8dee9',
