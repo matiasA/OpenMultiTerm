@@ -50,6 +50,7 @@ export interface ElectronAPI {
   app: {
     onWillQuit: (callback: () => void) => () => void
     getVersion: () => Promise<string>
+    getHomedir: () => Promise<string>
   }
   updater: {
     onChecking: (callback: () => void) => () => void
@@ -124,6 +125,7 @@ const api: ElectronAPI = {
       return () => ipcRenderer.removeListener('app:will-quit', handler)
     },
     getVersion: () => ipcRenderer.invoke('app:getVersion'),
+    getHomedir: () => ipcRenderer.invoke('app:getHomedir'),
   },
   updater: {
     onChecking: (callback) => {

@@ -24,6 +24,7 @@ interface Session {
   ptyProcess: pty.IPty
   profileId: string
   snapshot: SessionSnapshot
+  cwd: string
 }
 
 function findGitBash(): string {
@@ -169,24 +170,16 @@ export class ShellManager {
   getSessionCwd(sessionId: string): string | null {
     const session = this.sessions.get(sessionId)
     if (!session) return null
-    const pid = session.ptyProcess.pid
-    try {
-      if (process.platform === 'win32') {
-        const out = execSync(
-          `powershell -NoProfile -Command "(Get-CimInstance Win32_Process -Filter 'ProcessId=${pid}').WorkingDirectory"`,
-          { timeout: 3000 }
-        ).toString().trim()
-        return out || null
-      } else if (process.platform === 'darwin') {
-        const out = execSync(`lsof -a -d cwd -p ${pid} -Fn 2>/dev/null`, { timeout: 2000 }).toString()
-        const line = out.split('\n').find(l => l.startsWith('n'))
-        return line ? line.slice(1).trim() : null
-      } else {
-        return fs.readlinkSync(`/proc/${pid}/cwd`)
-      }
-    } catch {
-      return null
+
+    // On Linux we can get the live CWD cheaply via /proc; everywhere else
+    // return the initial cwd (updated via OSC 7 on the renderer side).
+    if (process.platform === 'linux') {
+      try {
+        return fs.readlinkSync(`/proc/${session.ptyProcess.pid}/cwd`)
+      } catch {}
     }
+
+    return session.cwd
   }
 
   listSessions(): Array<{ sessionId: string; profileId: string }> {
@@ -201,11 +194,12 @@ export class ShellManager {
 
     try {
       const shell = process.platform === 'win32' ? profile.command : (profile.command || process.env.SHELL || '/bin/bash')
+      const resolvedCwd = cwdOverride || profile.cwd || os.homedir() || process.cwd()
       const ptyProcess = pty.spawn(shell, profile.args || [], {
         name: 'xterm-256color',
         cols: cols || 120,
         rows: rows || 40,
-        cwd: cwdOverride || profile.cwd || os.homedir() || process.cwd(),
+        cwd: resolvedCwd,
         env: { ...process.env, ...profile.env } as { [key: string]: string },
       })
 
@@ -223,7 +217,7 @@ export class ShellManager {
         this.sessions.delete(sessionId)
       })
 
-      this.sessions.set(sessionId, { id: sessionId, ptyProcess, profileId, snapshot })
+      this.sessions.set(sessionId, { id: sessionId, ptyProcess, profileId, snapshot, cwd: resolvedCwd })
       log.info(`Session created: ${sessionId} (profile: ${profileId})`)
       return { sessionId }
     } catch (err: any) {

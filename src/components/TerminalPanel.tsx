@@ -8,6 +8,28 @@ import { useStore } from '../store'
 import { X, Search as SearchIcon, Download, Copy, Check } from 'lucide-react'
 import '@xterm/xterm/css/xterm.css'
 
+function parseCwdFromOsc7(data: string): string | null {
+  const match = /\x1b\]7;([^\x07\x1b]*?)(?:\x07|\x1b\\)/.exec(data)
+  if (!match) return null
+  const raw = match[1]
+  if (raw.startsWith('file://')) {
+    try {
+      const url = new URL(raw)
+      let p = decodeURIComponent(url.pathname)
+      if (/^\/[A-Za-z]:\//.test(p)) p = p.slice(1)
+      return p || null
+    } catch { return null }
+  }
+  return raw || null
+}
+
+function abbreviatePath(p: string): string {
+  const parts = p.replace(/\\/g, '/').split('/').filter(Boolean)
+  if (parts.length === 0) return p
+  if (parts.length <= 2) return parts.join('/')
+  return `…/${parts.slice(-2).join('/')}`
+}
+
 interface Props {
   session: TerminalSession
   profile?: Profile
@@ -25,11 +47,12 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
   const [isRenaming, setIsRenaming] = useState(false)
   const [renameValue, setRenameValue] = useState('')
   const [copied, setCopied] = useState(false)
+  const [cwd, setCwd] = useState<string | null>(profile?.cwd ?? null)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const renameInputRef = useRef<HTMLInputElement>(null)
   const {
     activeTerminalId, setActiveTerminal, removeTerminal,
-    broadcastMode, terminalTheme, addCommand, renameSession,
+    broadcastMode, terminalTheme, addCommand, renameSession, profiles,
   } = useStore()
   const isActive = activeTerminalId === session.id
   const displayTitle = session.customTitle || profile?.name || 'Terminal'
@@ -61,6 +84,11 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
 
     terminal.open(containerRef.current)
     fitAddon.fit()
+
+    // Immediate fallback: home directory from main process (no daemon involved)
+    window.electronAPI.app.getHomedir().then((h) => setCwd((prev) => prev ?? h)).catch(() => {})
+    // More accurate: daemon-known CWD (overrides homedir if different)
+    window.electronAPI.terminal.getCwd(session.id).then((c) => { if (c) setCwd(c) }).catch(() => {})
 
     // Replay buffered output from daemon (session survived a window close)
     window.electronAPI.terminal.attach(session.id).then((payload) => {
@@ -123,6 +151,8 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
 
     const disposeOnTerminalData = window.electronAPI.terminal.onData((id, data) => {
       if (id === session.id) {
+        const detectedCwd = parseCwdFromOsc7(data)
+        if (detectedCwd) setCwd(detectedCwd)
         terminal.write(data)
       }
       useStore.getState().updateTerminalActivity(id)
@@ -259,25 +289,43 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
         />
 
         {isRenaming ? (
-          <input
-            ref={renameInputRef}
-            value={renameValue}
-            onChange={(e) => setRenameValue(e.target.value)}
-            onBlur={commitRename}
-            onKeyDown={handleRenameKeyDown}
-            className="flex-1 bg-app-hover-overlay/5 border border-accent/30 rounded px-1.5 py-0.5 text-[10px] text-app-text/90 outline-none focus:border-accent/60"
-            autoFocus
-          />
+          <>
+            <input
+              ref={renameInputRef}
+              list={`rename-list-${session.id}`}
+              value={renameValue}
+              onChange={(e) => setRenameValue(e.target.value)}
+              onBlur={commitRename}
+              onKeyDown={handleRenameKeyDown}
+              className="flex-1 bg-app-hover-overlay/5 border border-accent/30 rounded px-1.5 py-0.5 text-[10px] text-app-text/90 outline-none focus:border-accent/60"
+              autoFocus
+            />
+            <datalist id={`rename-list-${session.id}`}>
+              {profiles.map((p) => (
+                <option key={p.id} value={p.name} />
+              ))}
+            </datalist>
+          </>
         ) : (
-          <span
-            className={`text-[10px] font-medium truncate flex-1 cursor-text transition-colors ${
-              isActive ? 'text-app-text/85' : 'text-app-text/40'
-            }`}
-            onDoubleClick={startRename}
-            title="Double-click to rename"
-          >
-            {displayTitle}
-          </span>
+          <>
+            <span
+              className={`text-[10px] font-medium truncate flex-1 cursor-text transition-colors ${
+                isActive ? 'text-app-text/85' : 'text-app-text/40'
+              }`}
+              onDoubleClick={startRename}
+              title="Double-click to rename"
+            >
+              {displayTitle}
+            </span>
+            {cwd && (
+              <span
+                className="text-[9px] font-mono text-app-text/55 truncate max-w-[140px] shrink-0"
+                title={cwd}
+              >
+                {abbreviatePath(cwd)}
+              </span>
+            )}
+          </>
         )}
 
         <div className={`flex items-center gap-0.5 transition-opacity ${

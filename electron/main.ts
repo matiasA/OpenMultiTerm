@@ -7,6 +7,7 @@ import { autoUpdater } from 'electron-updater'
 import { execSync } from 'child_process'
 import path from 'path'
 import fs from 'fs'
+import os from 'os'
 import { ensureDaemon } from './daemon-launcher'
 import { DaemonClient } from './daemon-client'
 import { METHODS, EVENTS } from '../daemon/protocol'
@@ -186,6 +187,7 @@ function startUI() {
 
     // App
     ipcMain.handle('app:getVersion', () => app.getVersion())
+    ipcMain.handle('app:getHomedir', () => os.homedir())
 
     // Auto-updater
     ipcMain.handle('updater:checkForUpdates', async () => {

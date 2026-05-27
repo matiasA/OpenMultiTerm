@@ -5,7 +5,7 @@
 
   <p>
     A modern, open-source multi-terminal manager built for developers.<br/>
-    Run multiple shells side by side — grid layout, broadcast mode, and beautiful themes.
+    Run multiple shells side by side — persistent sessions, grid layout, broadcast mode, and beautiful themes.
   </p>
 
   <p>
@@ -32,13 +32,15 @@
 - **Broadcast mode** — Type once, send to all. Instantly propagate commands across every running terminal simultaneously.
 - **Command palette** — Search your command history across all sessions and re-execute any command in one keystroke (`Ctrl+Shift+P`).
 - **Saved layouts** — Save your current terminal arrangement by name and restore it with one click.
-- **Session snapshots** — OpenMultiTerm remembers your open sessions. Relaunch the app and pick up exactly where you left off.
+- **Persistent terminal sessions** — Closing the window does **not** kill your shells. A background daemon keeps every PTY alive. Reopen the app and each terminal is exactly where you left it — scrollback, running process and all. AI agents (Claude Code, OpenCode, Gemini CLI…) keep working in the background.
+- **Session snapshots** — If the daemon is restarted (e.g. after an update), OpenMultiTerm restores your previous layout from a snapshot so you can pick up quickly.
 - **Terminal themes** — Six built-in color themes: OpenMultiTerm Dark, OpenMultiTerm Light, One Dark, Dracula, Tokyo Night, and Nord.
 - **Dark & Light app theme** — Full UI theming, not just the terminal.
 - **In-terminal search** — Find text inside any terminal panel.
 - **Export & copy** — Export the full terminal buffer to a `.log` file or copy it to the clipboard.
 - **Drag & drop** — Reorder terminal panels within the grid by dragging.
-- **Session rename** — Double-click any terminal title to rename it.
+- **Session rename** — Double-click any terminal title to rename it. Profile names are suggested as you type.
+- **Working directory in header** — Each terminal tab shows the current working directory (abbreviated to the last two path segments) so you always know where a shell is running at a glance.
 
 ---
 
@@ -118,6 +120,7 @@ Default profiles ship with PowerShell, Command Prompt, Claude Code, WSL, and Git
 | Desktop framework | [Electron](https://www.electronjs.org/) |
 | UI | [React](https://react.dev/) + [Tailwind CSS](https://tailwindcss.com/) |
 | State | [Zustand](https://github.com/pmndrs/zustand) |
+| IPC (UI ↔ Daemon) | WebSocket ([ws](https://github.com/websockets/ws)) over `127.0.0.1` |
 | Build | [Vite](https://vitejs.dev/) + [electron-builder](https://www.electron.build/) |
 | Language | TypeScript |
 
