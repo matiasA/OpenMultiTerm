@@ -6,23 +6,37 @@ import { AGENTS, type AgentDef } from '../agents'
 import { PROFILE_INSTALL_INFO, type ProfileInstallInfo } from '../profile-install-info'
 import AgentInstallModal from './AgentInstallModal'
 import {
-  Plus, Terminal, Sparkles, Monitor, RectangleHorizontal, GitBranch,
-  Trash2, Grid3X3, Columns2, Rows2, LayoutGrid,
-  Radio, Save, ChevronDown, Palette, Bookmark, Zap, Bot, Play, RotateCw,
-  RefreshCw, Check, AlertCircle, FolderOpen,
+  Plus, Trash2, ChevronDown, Palette, RotateCw,
 } from 'lucide-react'
+import {
+  AgentIcon, AlertIcon, BookmarkIcon, BroadcastIcon, CheckIcon, CliIcon, CodeIcon,
+  CommandIcon, DarkModeIcon, FolderIcon, Layout1x1Icon, Layout1x2Icon, Layout2x1Icon,
+  Layout3x3Icon, LayoutGridIcon, LightModeIcon, NexusShellIcon, PlayIcon,
+  RefreshIcon, RobotIcon, SaveIcon, TerminalWindowIcon,
+} from '../icons/agent-aleph-icons'
 
 const ICON_MAP: Record<string, React.ComponentType<any>> = {
-  Terminal, Sparkles, Monitor, RectangleHorizontal, GitBranch, Bot, Zap,
+  Bot: RobotIcon,
+  Sparkles: AgentIcon,
+  Terminal: CliIcon,
+  Monitor: TerminalWindowIcon,
+  RectangleHorizontal: CommandIcon,
+  GitBranch: CodeIcon,
+  Zap: NexusShellIcon,
 }
 
 const AGENT_PROFILE_IDS = new Set(['claude', 'opencode', 'gh', 'gemini', 'hermes', 'clawbot', 'codex', 'antigravity', 'warp'])
+const WINDOWS_ONLY_PROFILE_IDS = new Set(['powershell', 'cmd', 'wsl', 'git-bash'])
+
+function isWindowsRuntime() {
+  return navigator.userAgent.includes('Win')
+}
 
 function ProfileIcon({ icon, color }: { icon: string; color: string }) {
-  const Icon = ICON_MAP[icon] || Terminal
+  const Icon = ICON_MAP[icon] || TerminalWindowIcon
   return (
     <div
-      className="w-7 h-7 rounded-md flex items-center justify-center shrink-0"
+      className="aleph-icon-tile w-7 h-7 rounded-md flex items-center justify-center shrink-0"
       style={{ backgroundColor: `${color}18`, color }}
     >
       <Icon size={14} />
@@ -216,16 +230,16 @@ export default function Sidebar() {
   }
 
   const gridPresets = [
-    { cols: 1, rows: 1, icon: Grid3X3, label: '1x1' },
-    { cols: 1, rows: 2, icon: Rows2, label: '1x2' },
-    { cols: 2, rows: 1, icon: Columns2, label: '2x1' },
-    { cols: 2, rows: 2, icon: LayoutGrid, label: '2x2' },
-    { cols: 3, rows: 2, icon: LayoutGrid, label: '3x2' },
-    { cols: 3, rows: 3, icon: Grid3X3, label: '3x3' },
+    { cols: 1, rows: 1, icon: Layout1x1Icon, label: '1x1' },
+    { cols: 1, rows: 2, icon: Layout1x2Icon, label: '1x2' },
+    { cols: 2, rows: 1, icon: Layout2x1Icon, label: '2x1' },
+    { cols: 2, rows: 2, icon: LayoutGridIcon, label: '2x2' },
+    { cols: 3, rows: 2, icon: LayoutGridIcon, label: '3x2' },
+    { cols: 3, rows: 3, icon: Layout3x3Icon, label: '3x3' },
   ]
 
   return (
-    <aside className="w-60 shrink-0 glass border-r border-app-border/5 flex flex-col animate-slide-in overflow-y-auto font-mono">
+    <aside className="asimov-sidebar w-[286px] shrink-0 glass border-r border-app-border/10 flex flex-col animate-slide-in overflow-y-auto font-mono">
 
       {/* === AGENTS === */}
       <div className="px-3 pt-3 pb-2 border-b border-app-border/5">
@@ -266,7 +280,7 @@ export default function Sidebar() {
                         </div>
                         <span className="text-xs flex-1 text-left truncate">{profile.name}</span>
                         {isInstalled ? (
-                          <FolderOpen size={13} className={`transition-opacity text-app-text/40 ${isPending ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
+                          <FolderIcon size={13} className={`transition-opacity text-app-text/40 ${isPending ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
                         ) : (
                           <span className="text-[9px] text-app-text/25 shrink-0">not installed</span>
                         )}
@@ -275,7 +289,7 @@ export default function Sidebar() {
                       {isPending && (
                         <div className="mt-0.5 mx-1 mb-1 p-2 rounded-md bg-app-hover-overlay/6 border border-app-border/8 animate-slide-up">
                           <div className="flex items-center gap-1.5 mb-2 min-w-0">
-                            <FolderOpen size={11} className="text-app-text/40 shrink-0" />
+                            <FolderIcon size={11} className="text-app-text/40 shrink-0" />
                             <input
                               value={pendingAgent!.cwd}
                               onChange={(e) => setPendingAgent({ ...pendingAgent!, cwd: e.target.value })}
@@ -293,7 +307,7 @@ export default function Sidebar() {
                               onClick={handleBrowseFolder}
                               className="flex items-center gap-1 px-2 py-1 rounded text-[10px] text-app-text/55 hover:text-app-text/85 hover:bg-app-hover-overlay/8 transition-colors"
                             >
-                              <FolderOpen size={10} />
+                              <FolderIcon size={10} />
                               Browse
                             </button>
                             <button
@@ -306,7 +320,7 @@ export default function Sidebar() {
                               onClick={handleLaunchAgent}
                               className="ml-auto flex items-center gap-1 px-2 py-1 rounded text-[10px] bg-accent/15 text-accent hover:bg-accent/25 transition-colors"
                             >
-                              <Play size={10} />
+                              <PlayIcon size={10} />
                               Launch
                             </button>
                           </div>
@@ -340,6 +354,7 @@ export default function Sidebar() {
           {(() => {
             const shellProfiles = profiles
               .filter((p) => !AGENT_PROFILE_IDS.has(p.id))
+              .filter((p) => isWindowsRuntime() || !WINDOWS_ONLY_PROFILE_IDS.has(p.id))
               .sort((a, b) => a.id === 'nexus' ? -1 : b.id === 'nexus' ? 1 : 0)
             const visibleShells = showAllShells ? shellProfiles : shellProfiles.slice(0, 3)
             return (
@@ -439,7 +454,7 @@ export default function Sidebar() {
               : 'text-app-text/45 hover:bg-app-hover-overlay/5 hover:text-app-text/70'
           }`}
         >
-          <Radio size={12} className={broadcastMode ? 'animate-pulse' : ''} />
+          <BroadcastIcon size={12} className={broadcastMode ? 'animate-pulse' : ''} />
           <span>Broadcast</span>
           <span className={`ml-auto text-[9px] font-bold tracking-wider ${broadcastMode ? 'text-yellow-400' : 'text-app-text/25'}`}>
             {broadcastMode ? 'ON' : 'OFF'}
@@ -517,7 +532,7 @@ export default function Sidebar() {
                       }`}
                       title="Double-click to rename"
                     >
-                      <Bookmark size={10} className={isSelected ? 'fill-accent/50' : ''} />
+                      <BookmarkIcon size={10} className={isSelected ? 'text-accent' : ''} />
                       <span className="truncate">{layout.name}</span>
                       <span className={isSelected ? 'text-accent/60' : 'text-app-text/40'}>
                         {layout.cols}x{layout.rows}
@@ -529,7 +544,7 @@ export default function Sidebar() {
                     className="p-0.5 rounded hover:bg-app-hover-overlay/10 text-app-text/40 hover:text-app-text/70 transition-colors opacity-0 group-hover:opacity-100"
                     title="Load layout"
                   >
-                    <Play size={10} />
+                    <PlayIcon size={10} />
                   </button>
                   {isSelected && (
                     <button
@@ -575,7 +590,7 @@ export default function Sidebar() {
             onClick={() => setShowLayoutSave(true)}
             className="flex items-center gap-1 text-[10px] text-app-text/50 hover:text-accent/70 transition-colors"
           >
-            <Save size={10} />
+            <SaveIcon size={10} />
             Save current layout
           </button>
         )}
@@ -589,18 +604,20 @@ export default function Sidebar() {
         <div className="flex gap-1 mb-2">
           <button
             onClick={() => setAppTheme('dark')}
-            className={`flex-1 py-1 rounded text-[10px] font-medium transition-all ${
+            className={`flex-1 py-1 rounded text-[10px] font-medium transition-all flex items-center justify-center gap-1 ${
               appTheme === 'dark' ? 'bg-accent/20 text-accent' : 'text-app-text/55 hover:bg-app-hover-overlay/5 hover:text-app-text/80'
             }`}
           >
+            <DarkModeIcon size={12} />
             Dark
           </button>
           <button
             onClick={() => setAppTheme('light')}
-            className={`flex-1 py-1 rounded text-[10px] font-medium transition-all ${
+            className={`flex-1 py-1 rounded text-[10px] font-medium transition-all flex items-center justify-center gap-1 ${
               appTheme === 'light' ? 'bg-accent/20 text-accent' : 'text-app-text/55 hover:bg-app-hover-overlay/5 hover:text-app-text/80'
             }`}
           >
+            <LightModeIcon size={12} />
             Light
           </button>
         </div>
@@ -638,7 +655,7 @@ export default function Sidebar() {
                     </span>
                   )}
                 </span>
-                {terminalTheme.name === theme.name && <Zap size={10} className="text-accent" />}
+                {terminalTheme.name === theme.name && <NexusShellIcon size={10} className="text-accent" />}
               </button>
             ))}
           </div>
@@ -678,10 +695,10 @@ export default function Sidebar() {
           }
           className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] transition-all disabled:cursor-not-allowed text-app-text/35 hover:text-app-text/70 hover:bg-app-hover-overlay/5 disabled:text-app-text/25"
         >
-          {updateCheckState === 'checking' && <RefreshCw size={10} className="animate-spin" />}
-          {updateCheckState === 'ok' && <Check size={10} className="text-green-400" />}
-          {updateCheckState === 'error' && <AlertCircle size={10} className="text-red-400" />}
-          {updateCheckState === 'idle' && <RefreshCw size={10} />}
+          {updateCheckState === 'checking' && <RefreshIcon size={10} className="animate-spin" />}
+          {updateCheckState === 'ok' && <CheckIcon size={10} className="text-green-400" />}
+          {updateCheckState === 'error' && <AlertIcon size={10} className="text-red-400" />}
+          {updateCheckState === 'idle' && <RefreshIcon size={10} />}
           <span>
             {updateCheckState === 'checking' ? 'Checking…'
               : updateCheckState === 'ok' ? 'Up to date'

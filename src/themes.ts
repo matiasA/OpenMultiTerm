@@ -1,5 +1,32 @@
 import type { XtermTheme } from './types'
 
+export const ASIMOV_DARK: XtermTheme = {
+  name: 'Agent Aleph Terminal',
+  variant: 'dark',
+  fontFamily: '"IBM Plex Mono", "JetBrains Mono", "Noto Sans Mono", "Cascadia Code", monospace',
+  background: '#070A0A00',
+  foreground: '#F1EFE8',
+  cursor: '#F1EFE8',
+  cursorAccent: '#0B0F0E',
+  selectionBackground: '#1D9E7544',
+  black: '#0B0F0E',
+  brightBlack: '#2C2C2A',
+  red: '#D96C68',
+  brightRed: '#F08A82',
+  green: '#1D9E75',
+  brightGreen: '#5EE0B4',
+  yellow: '#EF9F27',
+  brightYellow: '#F2C66D',
+  blue: '#5D8AA8',
+  brightBlue: '#8BAFC2',
+  magenta: '#7F77DD',
+  brightMagenta: '#A69EF2',
+  cyan: '#3BBFA0',
+  brightCyan: '#6EE6C3',
+  white: '#D8D5CB',
+  brightWhite: '#F1EFE8',
+}
+
 export const OMT_DARK: XtermTheme = {
   name: 'OpenMultiTerm Dark',
   variant: 'dark',
@@ -31,7 +58,7 @@ export const OMT_LIGHT: XtermTheme = {
   name: 'OpenMultiTerm Light',
   variant: 'light',
   fontFamily: '"Consolas", "Noto Sans Mono", "JetBrains Mono", "JetBrainsMono Nerd Font", "Cascadia Code", monospace',
-  background: '#f5f5fa',
+  background: '#f5f5fa00',
   foreground: '#1a1a2e',
   cursor: '#7c5cfc',
   cursorAccent: '#ffffff',
@@ -163,6 +190,7 @@ export const NORD: XtermTheme = {
 }
 
 export const ALL_THEMES: XtermTheme[] = [
+  ASIMOV_DARK,
   OMT_DARK,
   OMT_LIGHT,
   ONE_DARK,

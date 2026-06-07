@@ -5,7 +5,9 @@ import { WebLinksAddon } from '@xterm/addon-web-links'
 import { SearchAddon } from '@xterm/addon-search'
 import type { TerminalSession, Profile } from '../types'
 import { useStore } from '../store'
-import { X, Search as SearchIcon, Download, Copy, Check } from 'lucide-react'
+import {
+  CheckIcon, CloseIcon, CopyIcon, DownloadIcon, SearchIcon,
+} from '../icons/agent-aleph-icons'
 import '@xterm/xterm/css/xterm.css'
 
 function parseCwdFromOsc7(data: string): string | null {
@@ -56,6 +58,12 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
   } = useStore()
   const isActive = activeTerminalId === session.id
   const displayTitle = session.customTitle || profile?.name || 'Terminal'
+  const darkBackgroundIndex = (cellIndex % 5) + 1
+  const lightBackgroundIndex = (cellIndex % 6) + 1
+  const backgroundStyle = {
+    '--terminal-bg-image-dark': `url('/assets/backgrounds/asimov-terminal-bg-${darkBackgroundIndex}.png')`,
+    '--terminal-bg-image-light': `url('/assets/backgrounds/agent-aleph-terminal-bg-light-${lightBackgroundIndex}.png')`,
+  } as React.CSSProperties
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -267,9 +275,10 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
 
   return (
     <div
-      className={`flex flex-col bg-app-bg overflow-hidden relative group transition-all ${
+      className={`asimov-terminal-panel flex flex-col bg-app-bg overflow-hidden relative group transition-all ${
         isActive ? 'ring-1 ring-accent/25 z-10' : 'ring-1 ring-app-border/5'
       }`}
+      style={backgroundStyle}
       onClick={() => setActiveTerminal(session.id)}
       draggable
       onDragStart={(e) => {
@@ -278,9 +287,9 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
       }}
     >
       {/* Tab header */}
-      <div className={`h-8 flex items-center gap-2 px-2.5 border-b shrink-0 transition-colors ${
+      <div className={`relative z-20 h-12 flex items-center gap-2 px-4 border-b shrink-0 transition-colors ${
         isActive
-          ? 'bg-app-bg-secondary border-app-border/8 border-t-2 border-t-accent/70'
+          ? 'bg-app-bg-secondary border-app-border/10 border-t border-t-accent/70'
           : 'bg-app-bg border-app-border/5'
       }`}>
         <span
@@ -336,14 +345,14 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
             className="p-1 rounded hover:bg-app-hover-overlay/10 text-app-text/50 hover:text-app-text/80 transition-colors"
             title={copied ? 'Copied!' : 'Copy buffer'}
           >
-            {copied ? <Check size={11} className="text-green-400" /> : <Copy size={11} />}
+            {copied ? <CheckIcon size={11} className="text-green-400" /> : <CopyIcon size={11} />}
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); handleExport() }}
             className="p-1 rounded hover:bg-app-hover-overlay/10 text-app-text/50 hover:text-app-text/80 transition-colors"
             title="Export to file"
           >
-            <Download size={11} />
+            <DownloadIcon size={11} />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); setShowSearch(!showSearch) }}
@@ -359,7 +368,7 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
             className="p-1 rounded hover:bg-red-500/20 text-app-text/50 hover:text-red-400 transition-colors"
             title="Close"
           >
-            <X size={12} />
+            <CloseIcon size={12} />
           </button>
         </div>
       </div>
@@ -380,12 +389,16 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
             onClick={() => { setShowSearch(false); setSearchTerm('') }}
             className="text-app-text/20 hover:text-app-text/50"
           >
-            <X size={11} />
+            <CloseIcon size={11} />
           </button>
         </div>
       )}
 
-      <div ref={containerRef} className="flex-1 terminal-container" />
+      <div
+        ref={containerRef}
+        className="flex-1 terminal-container"
+        style={backgroundStyle}
+      />
     </div>
   )
 }

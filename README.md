@@ -1,52 +1,60 @@
 <div align="center">
-  <img src="images/logo.png" alt="OpenMultiTerm" width="120" />
+  <img src="public/assets/brand/agent-aleph-logo-mark.png" alt="Agent Aleph" width="120" />
 
-  <h1>OpenMultiTerm</h1>
+  <h1>Agent Aleph</h1>
 
   <p>
-    A modern, open-source multi-terminal manager built for developers.<br/>
-    Run multiple shells side by side — persistent sessions, grid layout, broadcast mode, and beautiful themes.
+    A premium AI terminal workspace for developers and coding agents.<br/>
+    Retro-futurist interface, persistent sessions, multi-pane layouts, and terminal themes built for long-running agent work.
   </p>
 
   <p>
     <a href="https://github.com/matiasA/OpenMultiTerm/releases/latest">
-      <img src="https://img.shields.io/github/v/release/matiasA/OpenMultiTerm?include_prereleases&style=flat-square&color=7c5cfc" alt="Latest Release" />
+      <img src="https://img.shields.io/github/v/release/matiasA/OpenMultiTerm?include_prereleases&style=flat-square&color=1D9E75" alt="Latest Release" />
     </a>
-    <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue?style=flat-square" alt="Platform" />
-    <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="License" />
-    <img src="https://img.shields.io/badge/built%20with-Electron-47848F?style=flat-square&logo=electron" alt="Electron" />
+    <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-275A4D?style=flat-square" alt="Platform" />
+    <img src="https://img.shields.io/badge/license-MIT-EF9F27?style=flat-square" alt="License" />
+    <img src="https://img.shields.io/badge/built%20with-Electron-7F77DD?style=flat-square&logo=electron" alt="Electron" />
   </p>
-
-  <br/>
-
-  <!-- Replace with your actual screenshot -->
-  <img src="images/screenshot-dark.png" alt="OpenMultiTerm screenshot" width="860" />
 </div>
+
+---
+
+## Agent Aleph Design
+
+Agent Aleph turns the original multi-terminal manager into an AI-first command center:
+
+- **Editorial retro-futurist UI** — technical grids, orbital details, fine borders, and a restrained teal/amber/purple palette.
+- **Custom icon system** — native SVG icons designed for agents, shells, sessions, layouts, view modes, and utilities.
+- **Agent Aleph logo** — transparent brand mark integrated into the title bar.
+- **Dark and light terminal art** — curated background sets for both modes, with overlays tuned for prompt readability.
+- **Premium terminal panel** — transparent xterm rendering, cinematic backgrounds, and compact controls.
 
 ---
 
 ## Features
 
-- **Multi-pane grid** — Arrange terminals in 1×1 up to 3×3 grids. The layout adjusts automatically as you open new sessions.
-- **Shell profiles** — Pre-configured profiles for PowerShell, Command Prompt, WSL, Git Bash, and Claude Code. Add your own with custom commands, arguments, working directory, and environment variables.
-- **Broadcast mode** — Type once, send to all. Instantly propagate commands across every running terminal simultaneously.
-- **Command palette** — Search your command history across all sessions and re-execute any command in one keystroke (`Ctrl+Shift+P`).
-- **Saved layouts** — Save your current terminal arrangement by name and restore it with one click.
-- **Persistent terminal sessions** — Closing the window does **not** kill your shells. A background daemon keeps every PTY alive. Reopen the app and each terminal is exactly where you left it — scrollback, running process and all. AI agents (Claude Code, OpenCode, Gemini CLI…) keep working in the background.
-- **Session snapshots** — If the daemon is restarted (e.g. after an update), OpenMultiTerm restores your previous layout from a snapshot so you can pick up quickly.
-- **Terminal themes** — Six built-in color themes: OpenMultiTerm Dark, OpenMultiTerm Light, One Dark, Dracula, Tokyo Night, and Nord.
-- **Dark & Light app theme** — Full UI theming, not just the terminal.
+- **Multi-pane grid** — Arrange terminals in 1x1 up to 3x3 grids. The layout adjusts automatically as you open new sessions.
+- **AI agent profiles** — Launch tools such as Claude Code, OpenCode, Copilot CLI, Gemini CLI, Codex CLI, Antigravity, Warp, and more.
+- **Platform-aware shells** — Windows-only profiles such as PowerShell, Command Prompt, WSL, and Git Bash are hidden on Linux to avoid invalid launches.
+- **Persistent terminal sessions** — Closing the window does not kill your shells. A background daemon keeps every PTY alive.
+- **Agent-safe restoration** — Reopen the app and return to running processes, scrollback, current layout, and session state.
+- **Broadcast mode** — Type once, send to all running terminals.
+- **Saved layouts** — Store a terminal arrangement by name and restore it later.
+- **Command palette** — Search command history across sessions and re-execute commands quickly with `Ctrl+Shift+P`.
+- **Terminal themes** — Includes the Agent Aleph Terminal theme plus familiar themes such as One Dark, Dracula, Tokyo Night, and Nord.
+- **Dark and light app themes** — Full UI theme switching with matching terminal artwork.
 - **In-terminal search** — Find text inside any terminal panel.
-- **Export & copy** — Export the full terminal buffer to a `.log` file or copy it to the clipboard.
-- **Drag & drop** — Reorder terminal panels within the grid by dragging.
-- **Session rename** — Double-click any terminal title to rename it. Profile names are suggested as you type.
-- **Working directory in header** — Each terminal tab shows the current working directory (abbreviated to the last two path segments) so you always know where a shell is running at a glance.
+- **Export and copy** — Export full terminal buffers to `.log` files or copy them to the clipboard.
+- **Drag and drop** — Reorder terminal panels within the grid.
+- **Session rename** — Double-click a terminal title to rename it.
+- **Working directory in header** — Each terminal tab shows an abbreviated current working directory.
 
 ---
 
 ## Download
 
-Get the latest installer for your platform from the [Releases](https://github.com/matiasA/OpenMultiTerm/releases/latest) page.
+Get the latest beta from the [Releases](https://github.com/matiasA/OpenMultiTerm/releases/latest) page.
 
 | Platform | File |
 |---|---|
@@ -62,12 +70,12 @@ Get the latest installer for your platform from the [Releases](https://github.co
 
 ```bash
 git clone https://github.com/matiasA/OpenMultiTerm.git
-cd openmultiterm
+cd OpenMultiTerm
 npm install
 ```
 
 ```bash
-# Development (hot-reload)
+# Development
 npm run dev
 
 # Production build
@@ -79,7 +87,7 @@ npm run package:mac    # macOS (.dmg)
 npm run package:linux  # Linux (.AppImage)
 ```
 
-> **Note for Windows:** `node-pty` requires native compilation. If you run into build errors, install the [Visual C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) first.
+> Note for Windows: `node-pty` requires native compilation. If you run into build errors, install the Visual C++ Build Tools first.
 
 ---
 
@@ -88,26 +96,26 @@ npm run package:linux  # Linux (.AppImage)
 | Shortcut | Action |
 |---|---|
 | `Ctrl+Shift+P` | Open command palette |
-| `Ctrl+Shift+N` | New terminal (default profile) |
+| `Ctrl+Shift+N` | New terminal from the default profile |
 | `Ctrl+Shift+W` | Close active terminal |
 | `Ctrl+Shift+B` | Toggle broadcast mode |
 | `Ctrl+Shift+S` | Toggle sidebar |
-| `Ctrl+Shift+1–9` | Switch to terminal by position |
+| `Ctrl+Shift+1-9` | Switch to terminal by position |
 
 ---
 
 ## Shell Profiles
 
-Profiles are stored in your system's user data directory and persist between sessions. Each profile defines:
+Profiles are stored in the system user data directory and persist between sessions. Each profile defines:
 
 | Field | Description |
 |---|---|
-| `command` | Executable to launch (e.g. `powershell.exe`, `wsl.exe`) |
+| `command` | Executable to launch, such as `bash`, `pwsh`, or `wsl.exe` |
 | `args` | Arguments passed to the executable |
-| `cwd` | Starting working directory (`null` = user home) |
+| `cwd` | Starting working directory, or `null` for the user home |
 | `env` | Extra environment variables merged into the shell environment |
 
-Default profiles ship with PowerShell, Command Prompt, Claude Code, WSL, and Git Bash.
+Agent profiles can use `detectCommand` and `launchCommand` so Agent Aleph can detect installed CLIs and launch them inside a stable platform shell.
 
 ---
 
@@ -120,27 +128,12 @@ Default profiles ship with PowerShell, Command Prompt, Claude Code, WSL, and Git
 | Desktop framework | [Electron](https://www.electronjs.org/) |
 | UI | [React](https://react.dev/) + [Tailwind CSS](https://tailwindcss.com/) |
 | State | [Zustand](https://github.com/pmndrs/zustand) |
-| IPC (UI ↔ Daemon) | WebSocket ([ws](https://github.com/websockets/ws)) over `127.0.0.1` |
+| IPC | WebSocket ([ws](https://github.com/websockets/ws)) over `127.0.0.1` |
 | Build | [Vite](https://vitejs.dev/) + [electron-builder](https://www.electron.build/) |
 | Language | TypeScript |
 
 ---
 
-## Contributing
-
-Contributions are welcome. Please open an issue before submitting a large pull request so we can discuss the approach.
-
-```bash
-# Fork the repo, then:
-git checkout -b feature/your-feature
-# ... make your changes ...
-git commit -m "feat: describe your change"
-git push origin feature/your-feature
-# Open a Pull Request
-```
-
----
-
 ## License
 
-[MIT](LICENSE) — © 2026 Matias A
+[MIT](LICENSE) - © 2026 Matias A

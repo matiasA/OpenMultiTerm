@@ -16,7 +16,7 @@ export default function TitleBar() {
   }
 
   return (
-    <div className="titlebar-drag h-9 flex items-center justify-between shrink-0 bg-gradient-to-r from-titlebar-start via-titlebar-mid to-titlebar-end border-b border-app-border/5">
+    <div className="titlebar-drag h-[52px] flex items-center justify-between shrink-0 bg-gradient-to-r from-titlebar-start via-titlebar-mid to-titlebar-end border-b border-app-border/10">
 
       <div className="flex items-center gap-1.5 pl-2">
         <button
@@ -31,12 +31,17 @@ export default function TitleBar() {
           <PanelLeft size={13} />
         </button>
 
-        <div className="w-px h-4 bg-app-border/8 mx-0.5" />
+        <div className="w-px h-5 bg-app-border/10 mx-1" />
 
-        <div className="flex items-center gap-1.5">
-          <img src="./logo.png" alt="" className="w-5 h-5 object-contain opacity-90" />
-          <span className="text-[11px] font-semibold text-app-text/70 tracking-wide select-none">
-            OpenMultiTerm
+        <div className="flex items-center gap-3">
+          <img
+            src="/assets/brand/agent-aleph-logo-mark.png"
+            alt=""
+            className="h-8 w-8 object-contain select-none"
+            draggable={false}
+          />
+          <span className="font-display text-[15px] font-medium uppercase tracking-[0.24em] text-app-text/90 select-none">
+            AGENT ALEPH
           </span>
         </div>
       </div>
@@ -44,21 +49,21 @@ export default function TitleBar() {
       <div className="flex items-center h-full no-drag">
         <button
           onClick={() => window.electronAPI.window.minimize()}
-          className="h-full w-10 flex items-center justify-center text-app-text/35 hover:text-app-text/70 hover:bg-app-hover-overlay/5 transition-colors"
+          className="h-full w-10 flex items-center justify-center text-app-text/45 hover:text-[color:var(--asimov-amber)] hover:bg-app-hover-overlay/6 transition-colors"
           title="Minimize"
         >
           <Minus size={13} />
         </button>
         <button
           onClick={handleMaximize}
-          className="h-full w-10 flex items-center justify-center text-app-text/35 hover:text-app-text/70 hover:bg-app-hover-overlay/5 transition-colors"
+          className="h-full w-10 flex items-center justify-center text-app-text/45 hover:text-[color:var(--asimov-amber)] hover:bg-app-hover-overlay/6 transition-colors"
           title={isMaximized ? 'Restore' : 'Maximize'}
         >
           {isMaximized ? <Minimize2 size={12} /> : <Square size={11} />}
         </button>
         <button
           onClick={() => window.electronAPI.window.close()}
-          className="h-full w-10 flex items-center justify-center text-app-text/35 hover:text-white hover:bg-red-500/75 transition-colors"
+          className="h-full w-10 flex items-center justify-center text-app-text/45 hover:text-[color:var(--asimov-amber)] hover:bg-app-hover-overlay/6 transition-colors"
           title="Close"
         >
           <X size={13} />

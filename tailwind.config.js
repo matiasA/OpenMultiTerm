@@ -26,14 +26,14 @@ export default {
           end: 'rgb(var(--app-titlebar-end) / <alpha-value>)',
         },
         accent: {
-          DEFAULT: '#7c5cfc',
-          50: '#f3f0ff',
-          100: '#e8e3ff',
-          200: '#c4b5fd',
-          300: '#a78bfa',
-          400: '#8b6cf7',
-          500: '#7c5cfc',
-          600: '#6d28d9',
+          DEFAULT: '#1D9E75',
+          50: '#e9fbf5',
+          100: '#c9f5e7',
+          200: '#8ee7cc',
+          300: '#5ee0b4',
+          400: '#31bd93',
+          500: '#1D9E75',
+          600: '#17805f',
         },
         terminal: {
           green: '#00e676',
@@ -47,6 +47,7 @@ export default {
       fontFamily: {
         mono: ['"Cascadia Code"', '"JetBrains Mono"', '"Fira Code"', '"Consolas"', 'monospace'],
         sans: ['"Inter"', '"Segoe UI"', 'system-ui', 'sans-serif'],
+        display: ['"Space Grotesk"', '"Inter"', '"Segoe UI"', 'system-ui', 'sans-serif'],
       },
       backdropBlur: {
         xs: '2px',

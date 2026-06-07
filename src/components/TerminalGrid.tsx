@@ -29,8 +29,8 @@ export default function TerminalGrid() {
   }
 
   return (
-    <div className="flex-1 p-1 flex flex-col min-h-0">
-      <div className="flex-1 overflow-hidden bg-app-grid-bg/30 rounded-lg">
+    <div className="asimov-terminal-stage flex-1 p-2 flex flex-col min-h-0">
+      <div className="flex-1 overflow-hidden bg-app-grid-bg/30 rounded-sm border border-app-border/10">
         <div
           className="grid h-full gap-px bg-app-border/5"
           style={{

@@ -7,7 +7,7 @@ import StatusBar from './components/StatusBar'
 import CommandPalette from './components/CommandPalette'
 import UpdateToast from './components/UpdateToast'
 import type { Profile, SessionSnapshot } from './types'
-import { OMT_DARK, OMT_LIGHT } from './themes'
+import { ASIMOV_DARK, OMT_LIGHT } from './themes'
 
 export default function App() {
   const {
@@ -187,19 +187,19 @@ export default function App() {
     if (appTheme === 'light') {
       setTerminalTheme(OMT_LIGHT)
     } else {
-      setTerminalTheme(OMT_DARK)
+      setTerminalTheme(ASIMOV_DARK)
     }
   }, [appTheme])
 
   return (
     <div
       data-theme={appTheme}
-      className="h-full w-full flex flex-col bg-app-bg text-app-text"
+      className="asimov-shell h-full w-full flex flex-col bg-app-bg text-app-text"
     >
       <TitleBar />
       <div className="flex-1 flex overflow-hidden">
         {sidebarOpen && <Sidebar />}
-        <main className="flex-1 flex flex-col overflow-hidden">
+        <main className="asimov-main flex-1 flex flex-col overflow-hidden">
           <TerminalGrid />
         </main>
       </div>

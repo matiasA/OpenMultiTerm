@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { Profile, TerminalSession, GridLayout, CommandEntry, SavedLayout, SessionSnapshot, AppTheme, XtermTheme } from './types'
-import { OMT_DARK } from './themes'
+import { ASIMOV_DARK } from './themes'
 
 interface AppState {
   terminals: TerminalSession[]
@@ -69,7 +69,7 @@ export const useStore = create<AppState>((set, get) => ({
   commandHistory: [],
   savedLayouts: [],
   appTheme: 'dark',
-  terminalTheme: OMT_DARK,
+  terminalTheme: ASIMOV_DARK,
   showCommandPalette: false,
   notifyTimeout: 15,
 

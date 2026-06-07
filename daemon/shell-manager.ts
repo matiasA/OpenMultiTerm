@@ -56,22 +56,54 @@ function findPwsh(): string {
   return 'powershell.exe'
 }
 
+function findUnixShell(): string {
+  const candidates = [
+    process.env.SHELL || '',
+    '/bin/bash',
+    '/usr/bin/bash',
+    '/bin/zsh',
+    '/usr/bin/zsh',
+    '/bin/sh',
+  ]
+  for (const p of candidates) {
+    try { if (p && fs.existsSync(p)) return p } catch {}
+  }
+  return 'sh'
+}
+
+function shellArgs(command: string): string[] {
+  return command.includes('bash') || command.includes('zsh') ? ['-l'] : []
+}
+
+const defaultShell = process.platform === 'win32' ? findPwsh() : findUnixShell()
+const defaultShellArgs = process.platform === 'win32' ? ['-NoLogo'] : shellArgs(defaultShell)
+const agentShell = process.platform === 'win32' ? 'powershell.exe' : defaultShell
+const agentShellArgs = process.platform === 'win32' ? [] : defaultShellArgs
+
 const DEFAULT_PROFILES: Profile[] = [
-  { id: 'nexus', name: 'Nexus Shell', icon: 'Zap', color: '#a78bfa', command: findPwsh(), args: ['-NoLogo'], cwd: null, env: {} },
+  { id: 'nexus', name: 'Nexus Shell', icon: 'Zap', color: '#a78bfa', command: defaultShell, args: defaultShellArgs, cwd: null, env: {} },
   { id: 'powershell', name: 'PowerShell', icon: 'Terminal', color: '#0078d4', command: 'powershell.exe', args: [], cwd: null, env: {} },
   { id: 'cmd', name: 'Command Prompt', icon: 'RectangleHorizontal', color: '#ffb900', command: 'cmd.exe', args: [], cwd: null, env: {} },
   { id: 'wsl', name: 'WSL', icon: 'Monitor', color: '#18ffff', command: 'wsl.exe', args: [], cwd: null, env: {} },
   { id: 'git-bash', name: 'Git Bash', icon: 'GitBranch', color: '#f05033', command: findGitBash(), args: ['--login'], cwd: null, env: {} },
-  { id: 'claude',      name: 'Claude Code', icon: 'Bot', color: '#CC785C', command: 'powershell.exe', args: [], detectCommand: 'claude',   launchCommand: 'claude',     cwd: null, env: {} },
-  { id: 'opencode',    name: 'OpenCode',    icon: 'Bot', color: '#7c5cfc', command: 'powershell.exe', args: [], detectCommand: 'opencode', launchCommand: 'opencode',   cwd: null, env: {} },
-  { id: 'gh',          name: 'Copilot CLI', icon: 'Bot', color: '#6e40c9', command: 'powershell.exe', args: [], detectCommand: 'gh',       launchCommand: 'gh copilot', cwd: null, env: {} },
-  { id: 'gemini',      name: 'Gemini CLI',  icon: 'Bot', color: '#4285F4', command: 'powershell.exe', args: [], detectCommand: 'gemini',   launchCommand: 'gemini',     cwd: null, env: {} },
-  { id: 'hermes',      name: 'Hermes',      icon: 'Bot', color: '#FF6B35', command: 'powershell.exe', args: [], detectCommand: 'hermes',   launchCommand: 'hermes',     cwd: null, env: {} },
-  { id: 'clawbot',     name: 'OpenClaw',    icon: 'Bot', color: '#E63946', command: 'powershell.exe', args: [], detectCommand: 'clawbot',  launchCommand: 'clawbot',    cwd: null, env: {} },
-  { id: 'codex',       name: 'Codex CLI',   icon: 'Bot', color: '#10A37F', command: 'powershell.exe', args: [], detectCommand: 'codex',    launchCommand: 'codex',      cwd: null, env: {} },
-  { id: 'antigravity', name: 'Antigravity', icon: 'Bot', color: '#34A853', command: 'powershell.exe', args: [], detectCommand: 'agy',      launchCommand: 'agy',        cwd: null, env: {} },
-  { id: 'warp',        name: 'Warp Agent',  icon: 'Bot', color: '#01A4FF', command: 'powershell.exe', args: [], detectCommand: 'warp',     launchCommand: 'warp',       cwd: null, env: {} },
+  { id: 'claude',      name: 'Claude Code', icon: 'Bot', color: '#CC785C', command: agentShell, args: agentShellArgs, detectCommand: 'claude',   launchCommand: 'claude',     cwd: null, env: {} },
+  { id: 'opencode',    name: 'OpenCode',    icon: 'Bot', color: '#7c5cfc', command: agentShell, args: agentShellArgs, detectCommand: 'opencode', launchCommand: 'opencode',   cwd: null, env: {} },
+  { id: 'gh',          name: 'Copilot CLI', icon: 'Bot', color: '#6e40c9', command: agentShell, args: agentShellArgs, detectCommand: 'gh',       launchCommand: 'gh copilot', cwd: null, env: {} },
+  { id: 'gemini',      name: 'Gemini CLI',  icon: 'Bot', color: '#4285F4', command: agentShell, args: agentShellArgs, detectCommand: 'gemini',   launchCommand: 'gemini',     cwd: null, env: {} },
+  { id: 'hermes',      name: 'Hermes',      icon: 'Bot', color: '#FF6B35', command: agentShell, args: agentShellArgs, detectCommand: 'hermes',   launchCommand: 'hermes',     cwd: null, env: {} },
+  { id: 'clawbot',     name: 'OpenClaw',    icon: 'Bot', color: '#E63946', command: agentShell, args: agentShellArgs, detectCommand: 'clawbot',  launchCommand: 'clawbot',    cwd: null, env: {} },
+  { id: 'codex',       name: 'Codex CLI',   icon: 'Bot', color: '#10A37F', command: agentShell, args: agentShellArgs, detectCommand: 'codex',    launchCommand: 'codex',      cwd: null, env: {} },
+  { id: 'antigravity', name: 'Antigravity', icon: 'Bot', color: '#34A853', command: agentShell, args: agentShellArgs, detectCommand: 'agy',      launchCommand: 'agy',        cwd: null, env: {} },
+  { id: 'warp',        name: 'Warp Agent',  icon: 'Bot', color: '#01A4FF', command: agentShell, args: agentShellArgs, detectCommand: 'warp',     launchCommand: 'warp',       cwd: null, env: {} },
 ]
+
+const PLATFORM_MANAGED_PROFILE_IDS = new Set(['nexus', 'claude', 'opencode', 'gh', 'gemini', 'hermes', 'clawbot', 'codex', 'antigravity', 'warp'])
+const WINDOWS_ONLY_PROFILE_IDS = new Set(['powershell', 'cmd', 'wsl', 'git-bash'])
+
+function platformProfiles(profiles: Profile[]): Profile[] {
+  if (process.platform === 'win32') return profiles
+  return profiles.filter((p) => !WINDOWS_ONLY_PROFILE_IDS.has(p.id))
+}
 
 export class ShellManager {
   private sessions: Map<string, Session> = new Map()
@@ -108,8 +140,11 @@ export class ShellManager {
         const before = this.profiles.length
         this.profiles = this.profiles.filter((p) => p.id !== 'putty')
         if (this.profiles.length !== before) changed = true
+        const beforePlatformFilter = this.profiles.length
+        this.profiles = platformProfiles(this.profiles)
+        if (this.profiles.length !== beforePlatformFilter) changed = true
         for (const seeded of DEFAULT_PROFILES) {
-          if (!seeded.launchCommand) continue
+          if (process.platform !== 'win32' && !PLATFORM_MANAGED_PROFILE_IDS.has(seeded.id)) continue
           const saved = this.profiles.find((p) => p.id === seeded.id)
           if (saved && (saved.command !== seeded.command || saved.args.join(' ') !== seeded.args.join(' ') || saved.launchCommand !== seeded.launchCommand)) {
             saved.command = seeded.command
@@ -122,11 +157,11 @@ export class ShellManager {
         }
         if (changed) this.saveProfilesToDisk()
       } else {
-        this.profiles = [...DEFAULT_PROFILES]
+        this.profiles = platformProfiles([...DEFAULT_PROFILES])
         this.saveProfilesToDisk()
       }
     } catch {
-      this.profiles = [...DEFAULT_PROFILES]
+      this.profiles = platformProfiles([...DEFAULT_PROFILES])
     }
   }
 

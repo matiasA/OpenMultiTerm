@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useStore } from '../store'
-import { Terminal, Radio } from 'lucide-react'
+import { BroadcastIcon, TerminalWindowIcon } from '../icons/agent-aleph-icons'
 
 export default function StatusBar() {
   const { terminals, activeTerminalId, profiles, broadcastMode, terminalTheme } = useStore()
@@ -33,11 +33,11 @@ export default function StatusBar() {
   const Sep = () => <span className="text-app-text/15 select-none">·</span>
 
   return (
-    <div className="h-6 flex items-center gap-2 px-3 bg-app-bg border-t border-app-border/5 shrink-0 text-[10px]">
+    <div className="h-[30px] flex items-center gap-2 px-3 bg-app-bg border-t border-app-border/10 shrink-0 text-[10px] font-mono">
 
       {/* Left: terminal count */}
       <div className="flex items-center gap-1.5 text-app-text/40">
-        <Terminal size={10} />
+        <TerminalWindowIcon size={10} />
         <span>{runningCount} terminal{runningCount !== 1 ? 's' : ''}</span>
       </div>
 
@@ -45,7 +45,7 @@ export default function StatusBar() {
         <>
           <Sep />
           <div className="flex items-center gap-1 text-yellow-400/70 animate-pulse">
-            <Radio size={10} />
+            <BroadcastIcon size={10} />
             <span>Broadcast</span>
           </div>
         </>

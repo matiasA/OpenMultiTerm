@@ -14,6 +14,10 @@ import { METHODS, EVENTS } from '../daemon/protocol'
 
 const isDev = process.env.NODE_ENV !== 'production' && !app.isPackaged
 
+// Electron/Chromium can emit noisy GPU/VSync warnings on Linux compositors.
+// The app is terminal-focused, so software rendering is the more predictable path.
+app.disableHardwareAcceleration()
+
 // Daemon dispatch — runs before any Electron UI initialisation
 if (process.argv.includes('--daemon')) {
   require('./daemon')
@@ -56,7 +60,7 @@ function startUI() {
     })
 
     if (isDev) {
-      mainWindow.loadURL('http://localhost:5173')
+      mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173')
     } else {
       mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
     }
