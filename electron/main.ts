@@ -28,6 +28,24 @@ if (process.argv.includes('--daemon')) {
 function startUI() {
   let mainWindow: BrowserWindowType | null = null
   let daemonClient: DaemonClient | null = null
+  let installingUpdate = false
+
+  async function shutdownDaemonForUpdate() {
+    const dc = daemonClient
+    if (!dc) return
+
+    try {
+      await Promise.race([
+        dc.request(METHODS.DAEMON_SHUTDOWN, { reason: 'update' }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Daemon shutdown timed out')), 1500)),
+      ])
+    } catch (err: any) {
+      console.error('Daemon shutdown before update failed:', err?.message ?? err)
+    } finally {
+      dc.disconnect()
+      daemonClient = null
+    }
+  }
 
   function createWindow() {
     const iconPath = path.join(__dirname, isDev ? '../public/icon.png' : '../dist/icon.png')
@@ -201,12 +219,17 @@ function startUI() {
     })
 
     ipcMain.handle('updater:install', async () => {
-      // Shut down daemon first so the installer can replace the binary
-      try {
-        await req(METHODS.DAEMON_SHUTDOWN, { reason: 'update' })
-        await new Promise(r => setTimeout(r, 500))
-      } catch {}
-      autoUpdater.quitAndInstall()
+      installingUpdate = true
+      await shutdownDaemonForUpdate()
+
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.removeAllListeners('close')
+        mainWindow.hide()
+      }
+
+      setTimeout(() => {
+        autoUpdater.quitAndInstall(false, true)
+      }, 100)
     })
   }
 
@@ -246,6 +269,7 @@ function startUI() {
 
   // Close window only — daemon keeps running with all sessions alive
   app.on('window-all-closed', () => {
+    if (installingUpdate) return
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('app:will-quit')
     }
@@ -254,6 +278,7 @@ function startUI() {
   })
 
   app.on('before-quit', () => {
+    if (installingUpdate) return
     // Do NOT send daemon.shutdown — sessions must survive window close
     daemonClient?.disconnect()
   })

@@ -11,6 +11,7 @@ interface UpdateToastProps {
 export default function UpdateToast({ onStateChange }: UpdateToastProps) {
   const [state, setState] = useState<UpdateState>('idle')
   const [visible, setVisible] = useState(false)
+  const [installing, setInstalling] = useState(false)
 
   const transition = (next: UpdateState, show: boolean) => {
     setState(next)
@@ -93,15 +94,18 @@ export default function UpdateToast({ onStateChange }: UpdateToastProps) {
           <div className="px-3 pb-3">
             <button
               onClick={async () => {
+                if (installing) return
+                setInstalling(true)
                 const { terminals, getSnapshot } = useStore.getState()
                 if (terminals.length > 0) {
                   await window.electronAPI.snapshot.save(getSnapshot())
                 }
-                window.electronAPI.updater.install()
+                await window.electronAPI.updater.install()
               }}
-              className="w-full py-1.5 rounded-md bg-accent hover:bg-accent/90 text-white text-[11px] font-medium transition-colors"
+              disabled={installing}
+              className="w-full py-1.5 rounded-md bg-accent hover:bg-accent/90 disabled:opacity-60 disabled:cursor-default text-white text-[11px] font-medium transition-colors"
             >
-              Restart now
+              {installing ? 'Restarting…' : 'Restart now'}
             </button>
           </div>
         )}
