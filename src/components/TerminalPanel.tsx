@@ -5,6 +5,7 @@ import { WebLinksAddon } from '@xterm/addon-web-links'
 import { SearchAddon } from '@xterm/addon-search'
 import type { TerminalSession, Profile } from '../types'
 import { useStore } from '../store'
+import { assetUrl } from '../asset-url'
 import {
   CheckIcon, CloseIcon, CopyIcon, DownloadIcon, SearchIcon,
 } from '../icons/openmultiterm-icons'
@@ -61,8 +62,8 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
   const darkBackgroundIndex = (cellIndex % 5) + 1
   const lightBackgroundIndex = (cellIndex % 6) + 1
   const backgroundStyle = {
-    '--terminal-bg-image-dark': `url('/assets/backgrounds/asimov-terminal-bg-${darkBackgroundIndex}.png')`,
-    '--terminal-bg-image-light': `url('/assets/backgrounds/openmultiterm-terminal-bg-light-${lightBackgroundIndex}.png')`,
+    '--terminal-bg-image-dark': `url("${assetUrl(`assets/backgrounds/asimov-terminal-bg-${darkBackgroundIndex}.png`)}")`,
+    '--terminal-bg-image-light': `url("${assetUrl(`assets/backgrounds/openmultiterm-terminal-bg-light-${lightBackgroundIndex}.png`)}")`,
   } as React.CSSProperties
 
   useEffect(() => {

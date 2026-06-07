@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react'
 import { useStore } from './store'
+import { assetUrl } from './asset-url'
 import TitleBar from './components/TitleBar'
 import Sidebar from './components/Sidebar'
 import TerminalGrid from './components/TerminalGrid'
@@ -17,6 +18,10 @@ export default function App() {
   } = useStore()
 
   const restoredRef = useRef(false)
+  const assetStyle = {
+    '--asimov-orbital-map': `url("${assetUrl('assets/asimov-orbital-map.svg')}")`,
+    '--asimov-city': `url("${assetUrl('assets/asimov-city.svg')}")`,
+  } as React.CSSProperties
 
   useEffect(() => {
     const loadData = async () => {
@@ -194,6 +199,7 @@ export default function App() {
   return (
     <div
       data-theme={appTheme}
+      style={assetStyle}
       className="asimov-shell h-full w-full flex flex-col bg-app-bg text-app-text"
     >
       <TitleBar />

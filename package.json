@@ -1,6 +1,6 @@
 {
   "name": "openmultiterm",
-  "version": "0.1.14-beta",
+  "version": "0.1.15-beta",
   "description": "Open-source multi-terminal manager",
   "author": "Matias A",
   "main": "dist-electron/main.js",
@@ -40,7 +40,7 @@
         "deb"
       ],
       "maintainer": "Matias A <matiasA@users.noreply.github.com>",
-      "icon": "public/icon.png"
+      "icon": "public/icons"
     },
     "npmRebuild": true,
     "publish": {
