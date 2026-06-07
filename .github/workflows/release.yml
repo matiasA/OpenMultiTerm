@@ -67,4 +67,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG=${GITHUB_REF#refs/tags/}
-          find release -maxdepth 1 -type f \( -name "*.exe" -o -name "*.dmg" -o -name "*.AppImage" -o -name "*.blockmap" -o -name "latest*.yml" \) -print0 | xargs -0 gh release upload "$TAG" --clobber
+          find release -maxdepth 1 -type f \( -name "*.exe" -o -name "*.dmg" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.blockmap" -o -name "latest*.yml" \) -print0 | xargs -0 gh release upload "$TAG" --clobber
