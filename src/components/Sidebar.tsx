@@ -13,7 +13,7 @@ import {
   CommandIcon, DarkModeIcon, FolderIcon, Layout1x1Icon, Layout1x2Icon, Layout2x1Icon,
   Layout3x3Icon, LayoutGridIcon, LightModeIcon, NexusShellIcon, PlayIcon,
   RefreshIcon, RobotIcon, SaveIcon, TerminalWindowIcon,
-} from '../icons/agent-aleph-icons'
+} from '../icons/openmultiterm-icons'
 
 const ICON_MAP: Record<string, React.ComponentType<any>> = {
   Bot: RobotIcon,

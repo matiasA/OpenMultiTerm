@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Minus, Square, X, Minimize2, PanelLeft } from 'lucide-react'
 import { useStore } from '../store'
+import openMultiTermLogo from '../assets/openmultiterm-logo-chatgpt-cutout.png'
 
 export default function TitleBar() {
   const [isMaximized, setIsMaximized] = useState(false)
@@ -35,13 +36,13 @@ export default function TitleBar() {
 
         <div className="flex items-center gap-3">
           <img
-            src="/assets/brand/agent-aleph-logo-mark.png"
+            src={openMultiTermLogo}
             alt=""
             className="h-8 w-8 object-contain select-none"
             draggable={false}
           />
           <span className="font-display text-[15px] font-medium uppercase tracking-[0.24em] text-app-text/90 select-none">
-            AGENT ALEPH
+            OPENMULTITERM
           </span>
         </div>
       </div>

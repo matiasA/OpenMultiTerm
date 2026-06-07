@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="public/assets/brand/agent-aleph-logo-mark.png" alt="Agent Aleph" width="120" />
+  <img src="public/assets/brand/openmultiterm-logo-chatgpt-cutout.png" alt="OpenMultiTerm" width="120" />
 
-  <h1>Agent Aleph</h1>
+  <h1>OpenMultiTerm</h1>
 
   <p>
     A premium AI terminal workspace for developers and coding agents.<br/>
@@ -20,13 +20,13 @@
 
 ---
 
-## Agent Aleph Design
+## OpenMultiTerm Design
 
-Agent Aleph turns the original multi-terminal manager into an AI-first command center:
+OpenMultiTerm turns the original multi-terminal manager into an AI-first command center:
 
 - **Editorial retro-futurist UI** — technical grids, orbital details, fine borders, and a restrained teal/amber/purple palette.
 - **Custom icon system** — native SVG icons designed for agents, shells, sessions, layouts, view modes, and utilities.
-- **Agent Aleph logo** — transparent brand mark integrated into the title bar.
+- **OpenMultiTerm logo** — transparent brand mark integrated into the title bar.
 - **Dark and light terminal art** — curated background sets for both modes, with overlays tuned for prompt readability.
 - **Premium terminal panel** — transparent xterm rendering, cinematic backgrounds, and compact controls.
 
@@ -42,7 +42,7 @@ Agent Aleph turns the original multi-terminal manager into an AI-first command c
 - **Broadcast mode** — Type once, send to all running terminals.
 - **Saved layouts** — Store a terminal arrangement by name and restore it later.
 - **Command palette** — Search command history across sessions and re-execute commands quickly with `Ctrl+Shift+P`.
-- **Terminal themes** — Includes the Agent Aleph Terminal theme plus familiar themes such as One Dark, Dracula, Tokyo Night, and Nord.
+- **Terminal themes** — Includes the OpenMultiTerm Terminal theme plus familiar themes such as One Dark, Dracula, Tokyo Night, and Nord.
 - **Dark and light app themes** — Full UI theme switching with matching terminal artwork.
 - **In-terminal search** — Find text inside any terminal panel.
 - **Export and copy** — Export full terminal buffers to `.log` files or copy them to the clipboard.
@@ -115,7 +115,7 @@ Profiles are stored in the system user data directory and persist between sessio
 | `cwd` | Starting working directory, or `null` for the user home |
 | `env` | Extra environment variables merged into the shell environment |
 
-Agent profiles can use `detectCommand` and `launchCommand` so Agent Aleph can detect installed CLIs and launch them inside a stable platform shell.
+Agent profiles can use `detectCommand` and `launchCommand` so OpenMultiTerm can detect installed CLIs and launch them inside a stable platform shell.
 
 ---
 

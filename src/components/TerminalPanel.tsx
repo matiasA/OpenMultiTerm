@@ -7,7 +7,7 @@ import type { TerminalSession, Profile } from '../types'
 import { useStore } from '../store'
 import {
   CheckIcon, CloseIcon, CopyIcon, DownloadIcon, SearchIcon,
-} from '../icons/agent-aleph-icons'
+} from '../icons/openmultiterm-icons'
 import '@xterm/xterm/css/xterm.css'
 
 function parseCwdFromOsc7(data: string): string | null {
@@ -62,7 +62,7 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
   const lightBackgroundIndex = (cellIndex % 6) + 1
   const backgroundStyle = {
     '--terminal-bg-image-dark': `url('/assets/backgrounds/asimov-terminal-bg-${darkBackgroundIndex}.png')`,
-    '--terminal-bg-image-light': `url('/assets/backgrounds/agent-aleph-terminal-bg-light-${lightBackgroundIndex}.png')`,
+    '--terminal-bg-image-light': `url('/assets/backgrounds/openmultiterm-terminal-bg-light-${lightBackgroundIndex}.png')`,
   } as React.CSSProperties
 
   useEffect(() => {

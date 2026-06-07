@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useStore } from '../store'
-import { BroadcastIcon, TerminalWindowIcon } from '../icons/agent-aleph-icons'
+import { BroadcastIcon, TerminalWindowIcon } from '../icons/openmultiterm-icons'
 
 export default function StatusBar() {
   const { terminals, activeTerminalId, profiles, broadcastMode, terminalTheme } = useStore()

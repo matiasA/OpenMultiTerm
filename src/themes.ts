@@ -1,7 +1,7 @@
 import type { XtermTheme } from './types'
 
 export const ASIMOV_DARK: XtermTheme = {
-  name: 'Agent Aleph Terminal',
+  name: 'OpenMultiTerm Terminal',
   variant: 'dark',
   fontFamily: '"IBM Plex Mono", "JetBrains Mono", "Noto Sans Mono", "Cascadia Code", monospace',
   background: '#070A0A00',

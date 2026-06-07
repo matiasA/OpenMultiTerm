@@ -1,18 +1,18 @@
 import type { SVGProps } from 'react'
 
-export type AlephIconProps = SVGProps<SVGSVGElement> & {
+export type OpenMultiTermIconProps = SVGProps<SVGSVGElement> & {
   size?: number
   color?: string
   strokeWidth?: number
 }
 
-function AlephIcon({
+function OpenMultiTermIcon({
   size = 18,
   color = 'currentColor',
   strokeWidth = 1.7,
   children,
   ...props
-}: AlephIconProps) {
+}: OpenMultiTermIconProps) {
   return (
     <svg
       width={size}
@@ -39,43 +39,43 @@ const Dots = ({ y = 16 }: { y?: number }) => (
   </>
 )
 
-export function AgentIcon(props: AlephIconProps) {
+export function AgentIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <path d="M32 10 52 21v22L32 54 12 43V21Z" />
       <path d="M12 21 32 32 52 21" />
       <path d="M32 32v22" />
       <circle cx="32" cy="41" r="2.2" fill="currentColor" stroke="none" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function CodeIcon(props: AlephIconProps) {
+export function CodeIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <rect x="10" y="13" width="44" height="38" rx="4" />
       <path d="M10 22h44" />
       <Dots y={17} />
       <path d="m28 31-8 7 8 7" />
       <path d="m36 31 8 7-8 7" />
       <path d="m34 29-6 18" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function CliIcon(props: AlephIconProps) {
+export function CliIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <rect x="13" y="15" width="38" height="36" rx="5" />
       <path d="m24 29 9 7-9 7" />
       <path d="M36 43h10" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function RobotIcon(props: AlephIconProps) {
+export function RobotIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <path d="M32 11v8" />
       <circle cx="32" cy="9" r="2.5" />
       <rect x="16" y="21" width="36" height="30" rx="8" />
@@ -84,128 +84,128 @@ export function RobotIcon(props: AlephIconProps) {
       <rect x="24" y="33" width="6" height="5" rx="1.2" />
       <rect x="38" y="33" width="6" height="5" rx="1.2" />
       <path d="M28 45h12" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function NexusShellIcon(props: AlephIconProps) {
+export function NexusShellIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <path d="M36 7 17 36h18l-7 21 19-31H30Z" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function TerminalWindowIcon(props: AlephIconProps) {
+export function TerminalWindowIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <rect x="10" y="13" width="44" height="38" rx="4" />
       <path d="M10 23h44" />
       <Dots y={18} />
       <path d="m22 34 8 6-8 6" />
       <path d="M35 46h11" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function CommandIcon(props: AlephIconProps) {
+export function CommandIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <rect x="10" y="13" width="44" height="38" rx="4" />
       <path d="M10 23h44" />
       <Dots y={18} />
       <path d="M20 38h6" />
       <path d="M31 38h9" />
       <path d="M45 38h4" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function SessionIcon(props: AlephIconProps) {
+export function SessionIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <rect x="18" y="20" width="28" height="28" rx="4" />
       <path d="M24 15h26v26" opacity="0.7" />
       <path d="M29 10h26v26" opacity="0.42" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function BroadcastIcon(props: AlephIconProps) {
+export function BroadcastIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <circle cx="32" cy="32" r="4" fill="currentColor" stroke="none" />
       <path d="M22 22a14 14 0 0 0 0 20" />
       <path d="M44 22a14 14 0 0 1 0 20" />
       <path d="M14 15a26 26 0 0 0 0 34" opacity="0.7" />
       <path d="M52 15a26 26 0 0 1 0 34" opacity="0.7" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function Layout1x1Icon(props: AlephIconProps) {
+export function Layout1x1Icon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <rect x="17" y="17" width="30" height="30" rx="3" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function Layout1x2Icon(props: AlephIconProps) {
+export function Layout1x2Icon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <rect x="14" y="17" width="38" height="30" rx="3" />
       <path d="M33 17v30" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function Layout2x1Icon(props: AlephIconProps) {
+export function Layout2x1Icon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <rect x="17" y="14" width="30" height="38" rx="3" />
       <path d="M17 33h30" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function LayoutGridIcon(props: AlephIconProps) {
+export function LayoutGridIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <rect x="13" y="13" width="17" height="17" rx="2.5" />
       <rect x="34" y="13" width="17" height="17" rx="2.5" />
       <rect x="13" y="34" width="17" height="17" rx="2.5" />
       <rect x="34" y="34" width="17" height="17" rx="2.5" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function Layout3x3Icon(props: AlephIconProps) {
+export function Layout3x3Icon(props: OpenMultiTermIconProps) {
   const cells = [13, 26, 39]
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       {cells.map((x) =>
         cells.map((y) => <rect key={`${x}-${y}`} x={x} y={y} width="10" height="10" rx="1.8" />)
       )}
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function DarkModeIcon(props: AlephIconProps) {
+export function DarkModeIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <path d="M42 50a22 22 0 0 1-7-43 22 22 0 1 0 20 27 22 22 0 0 1-13 16Z" />
       <path d="M49 13v6" />
       <path d="M46 16h6" />
       <path d="M40 21v4" />
       <path d="M38 23h4" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function LightModeIcon(props: AlephIconProps) {
+export function LightModeIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <circle cx="32" cy="32" r="11" />
       <path d="M32 8v7" />
       <path d="M32 49v7" />
@@ -215,118 +215,118 @@ export function LightModeIcon(props: AlephIconProps) {
       <path d="m44 44 5 5" />
       <path d="m49 15-5 5" />
       <path d="m20 44-5 5" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function SearchIcon(props: AlephIconProps) {
+export function SearchIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <circle cx="28" cy="28" r="16" />
       <path d="m40 40 14 14" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function CopyIcon(props: AlephIconProps) {
+export function CopyIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <rect x="13" y="13" width="24" height="24" rx="3" />
       <rect x="27" y="27" width="24" height="24" rx="3" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function DownloadIcon(props: AlephIconProps) {
+export function DownloadIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <path d="M32 10v28" />
       <path d="m20 27 12 12 12-12" />
       <path d="M14 49h38" />
       <path d="M14 40v9" />
       <path d="M52 40v9" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function CloseIcon(props: AlephIconProps) {
+export function CloseIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <path d="M16 16 48 48" />
       <path d="M48 16 16 48" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function SettingsIcon(props: AlephIconProps) {
+export function SettingsIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <path d="M32 9 44 16v14l8 6-8 14-12 7-12-7-8-14 8-6V16Z" />
       <circle cx="32" cy="32" r="8" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function FolderIcon(props: AlephIconProps) {
+export function FolderIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <path d="M9 20h18l5 6h23v27H9Z" />
       <path d="M9 20v-6h17l5 6" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function PlayIcon(props: AlephIconProps) {
+export function PlayIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <path d="M22 14v36l30-18Z" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function RefreshIcon(props: AlephIconProps) {
+export function RefreshIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <path d="M50 26a18 18 0 0 0-31-10l-5 5" />
       <path d="M14 12v9h9" />
       <path d="M14 38a18 18 0 0 0 31 10l5-5" />
       <path d="M50 52v-9h-9" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function SaveIcon(props: AlephIconProps) {
+export function SaveIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <path d="M14 12h34l6 6v40H14Z" />
       <path d="M22 12v16h24" />
       <path d="M22 58V39h28v19" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function BookmarkIcon(props: AlephIconProps) {
+export function BookmarkIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <path d="M18 10h28v45L32 45 18 55Z" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function CheckIcon(props: AlephIconProps) {
+export function CheckIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <path d="m14 34 13 13 23-30" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
 
-export function AlertIcon(props: AlephIconProps) {
+export function AlertIcon(props: OpenMultiTermIconProps) {
   return (
-    <AlephIcon {...props}>
+    <OpenMultiTermIcon {...props}>
       <path d="M32 8 58 54H6Z" />
       <path d="M32 23v15" />
       <circle cx="32" cy="46" r="1.8" fill="currentColor" stroke="none" />
-    </AlephIcon>
+    </OpenMultiTermIcon>
   )
 }
