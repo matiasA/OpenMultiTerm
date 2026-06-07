@@ -18,6 +18,8 @@
   </p>
 </div>
 
+![OpenMultiTerm workspace screenshot](public/assets/screenshots/openmultiterm-workspace.png)
+
 ---
 
 ## OpenMultiTerm Design
