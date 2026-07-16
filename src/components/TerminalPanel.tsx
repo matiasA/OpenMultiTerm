@@ -115,13 +115,13 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
 
       // Ctrl+C with active selection → copy, don't send SIGINT
       if (mod && !e.shiftKey && e.key === 'c' && terminal.hasSelection()) {
-        navigator.clipboard.writeText(terminal.getSelection())
+        window.electronAPI.clipboard.writeText(terminal.getSelection())
         return false
       }
 
       // Ctrl+V → paste from clipboard
       if (mod && !e.shiftKey && e.key === 'v') {
-        navigator.clipboard.readText().then((text) => {
+        window.electronAPI.clipboard.readText().then((text) => {
           if (text) window.electronAPI.terminal.write(session.id, text)
         })
         return false
@@ -251,7 +251,7 @@ export default function TerminalPanel({ session, profile, cellIndex }: Props) {
       const line = buffer.getLine(i)
       if (line) lines.push(line.translateToString())
     }
-    await navigator.clipboard.writeText(lines.join('\n'))
+    await window.electronAPI.clipboard.writeText(lines.join('\n'))
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }

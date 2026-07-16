@@ -2,7 +2,7 @@
 import type { BrowserWindow as BrowserWindowType } from 'electron'
 
 // Static imports — vite processes these correctly into the bundle / externals
-import { app, BrowserWindow, ipcMain, dialog, Notification, shell } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, Notification, shell, clipboard } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import { execSync } from 'child_process'
 import path from 'path'
@@ -191,6 +191,12 @@ function startUI() {
     ipcMain.on('notification:show', (_e, title: string, body: string) => {
       if (Notification.isSupported()) new Notification({ title, body }).show()
     })
+
+    // Clipboard — uses Electron's native clipboard module instead of the
+    // renderer's navigator.clipboard, which is unreliable on Linux (X11/Wayland
+    // focus and permission quirks under a sandboxed BrowserWindow).
+    ipcMain.handle('clipboard:readText', () => clipboard.readText())
+    ipcMain.handle('clipboard:writeText', (_e, text: string) => clipboard.writeText(text))
 
     // Agents — stateless execSync, stays local (no WS round-trip needed)
     ipcMain.handle('agents:detect', () => {

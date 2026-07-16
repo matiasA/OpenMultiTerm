@@ -38,6 +38,10 @@ export interface ElectronAPI {
   notification: {
     show: (title: string, body: string) => void
   }
+  clipboard: {
+    readText: () => Promise<string>
+    writeText: (text: string) => Promise<void>
+  }
   snapshot: {
     save: (snapshot: any) => Promise<void>
     load: () => Promise<any | null>
@@ -108,6 +112,10 @@ const api: ElectronAPI = {
   },
   notification: {
     show: (title, body) => ipcRenderer.send('notification:show', title, body),
+  },
+  clipboard: {
+    readText: () => ipcRenderer.invoke('clipboard:readText'),
+    writeText: (text) => ipcRenderer.invoke('clipboard:writeText', text),
   },
   snapshot: {
     save: (snapshot) => ipcRenderer.invoke('snapshot:save', snapshot),

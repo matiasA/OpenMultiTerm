@@ -1,6 +1,6 @@
 {
   "name": "openmultiterm",
-  "version": "0.1.16-beta",
+  "version": "0.1.17-beta",
   "description": "Open-source multi-terminal manager",
   "author": "Matias A",
   "main": "dist-electron/main.js",
